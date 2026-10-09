@@ -17,14 +17,14 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-start;
       min-height: 100vh;
-      padding: 20px;
+      padding: 40px 20px;
       text-align: center;
     }
     .logo {
       max-width: 180px;
-      margin-bottom: 40px;
+      margin-bottom: 30px;
       height: auto;
       background: transparent;
     }
@@ -45,7 +45,7 @@
       gap: 10px;
       width: 100%;
       max-width: 420px;
-      margin-bottom: 40px;
+      margin-bottom: 60px;
     }
     input[type="email"] {
       flex: 1;
@@ -71,13 +71,63 @@
     button:hover {
       background-color: #1d4ed8;
     }
+    
+    /* Sezione Come Funziona */
+    .how-it-works {
+      max-width: 900px;
+      width: 100%;
+      margin-bottom: 60px;
+    }
+    .section-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 32px;
+      color: #38bdf8;
+    }
+    .steps-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 24px;
+    }
+    .step-card {
+      background: #1e293b;
+      padding: 28px 20px;
+      border-radius: 12px;
+      border: 1px solid #334155;
+      text-align: center;
+      position: relative;
+    }
+    .step-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      background-color: #2563eb;
+      color: #fff;
+      font-weight: bold;
+      border-radius: 50%;
+      margin-bottom: 16px;
+      font-size: 1.1rem;
+    }
+    .step-card h3 {
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+      color: #f8fafc;
+    }
+    .step-card p {
+      font-size: 0.95rem;
+      color: #94a3b8;
+      line-height: 1.5;
+    }
+
+    /* Vantaggi / Features */
     .features {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 20px;
-      max-width: 800px;
+      max-width: 900px;
       width: 100%;
-      margin-top: 20px;
     }
     .feature-card {
       background: #1e293b;
@@ -109,6 +159,29 @@
     <button type="submit">Unisciti</button>
   </form>
 
+  <!-- SEZIONE COME FUNZIONA -->
+  <div class="how-it-works">
+    <h2 class="section-title">Come funziona Swappr</h2>
+    <div class="steps-container">
+      <div class="step-card">
+        <div class="step-number">1</div>
+        <h3>Carica il tuo oggetto</h3>
+        <p>Scatta una foto a ciò che non usi più e pubblica l'annuncio in pochi secondi.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-number">2</div>
+        <h3>Trova il Match</h3>
+        <p>Sfoglia gli oggetti proposti dagli altri utenti nella tua zona e proponi uno scambio.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-number">3</div>
+        <h3>Fai lo Swap!</h3>
+        <p>Accorda i dettagli in chat, incontrati in sicurezza e completa lo scambio senza spese.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- VANTAGGI -->
   <div class="features">
     <div class="feature-card">
       <h3>⚡ Semplice</h3>
