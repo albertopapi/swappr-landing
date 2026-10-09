@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Il tuo Binder - Swappr</title>
+  <meta name="description" content="Gestisci il tuo binder digitale su Swappr: le carte che possiedi e quelle che cerchi.">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    html, body { background: #0f172a; }
+    body { color: #f8fafc; min-height: 100vh; display: flex; flex-direction: column; }
+    a { color: #38bdf8; }
+    :focus-visible { outline: 2px solid #38bdf8; outline-offset: 2px; }
+
+    header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 20px; border-bottom: 1px solid #1e293b; }
+    header .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: #f8fafc; font-weight: 800; font-size: 1.2rem; }
+    header img { width: 36px; height: 36px; }
+    header nav a { text-decoration: none; font-size: 0.95rem; }
+
+    main { width: 100%; max-width: 960px; margin: 0 auto; padding: 32px 20px 60px; flex: 1; }
+    h1 { font-size: 2rem; font-weight: 800; margin-bottom: 6px; }
+    .lead { color: #94a3b8; margin-bottom: 24px; max-width: 60ch; line-height: 1.5; }
+
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 28px; }
+    .stat { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 14px 16px; }
+    .stat strong { display: block; font-size: 1.6rem; color: #38bdf8; }
+    .stat span { font-size: 0.85rem; color: #94a3b8; }
+
+    .tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+    .tab { flex: 1; padding: 12px; border-radius: 8px; border: 1px solid #334155; background: #1e293b; color: #cbd5e1; font-weight: 600; font-size: 1rem; cursor: pointer; }
+    .tab[aria-selected="true"] { background: #2563eb; border-color: #2563eb; color: #fff; }
+
+    .panel { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 20px; margin-bottom: 24px; }
+    .panel h2 { font-size: 1.1rem; margin-bottom: 14px; color: #38bdf8; }
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field.wide { grid-column: 1 / -1; }
+    label { font-size: 0.85rem; color: #94a3b8; }
+    input, select { padding: 11px 12px; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: #f8fafc; font-size: 1rem; width: 100%; }
+    input:focus, select:focus { border-color: #38bdf8; }
+    .actions { margin-top: 16px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .btn { padding: 12px 22px; border-radius: 8px; border: none; background: #2563eb; color: #fff; font-weight: 600; font-size: 1rem; cursor: pointer; transition: background 0.2s; }
+    .btn:hover { background: #1d4ed8; }
+    .btn.ghost { background: transparent; border: 1px solid #334155; color: #cbd5e1; }
+    .btn.ghost:hover { background: #0f172a; }
+    .msg { font-size: 0.9rem; color: #38bdf8; min-height: 1.2em; }
+
+    .toolbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+    .toolbar h2 { font-size: 1.2rem; }
+    .toolbar select { width: auto; min-width: 180px; }
+
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+    .card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+    .card h3 { font-size: 1.05rem; line-height: 1.3; word-break: break-word; }
+    .meta { display: flex; flex-wrap: wrap; gap: 6px; }
+    .tag { font-size: 0.78rem; padding: 3px 10px; border-radius: 20px; border: 1px solid #334155; color: #cbd5e1; }
+    .tag.game { border-color: #38bdf8; color: #38bdf8; background: rgba(56,189,248,0.08); }
+    .sub { font-size: 0.88rem; color: #94a3b8; }
+    .card-foot { display: flex; align-items: center; justify-content: space-between; margin-top: auto; }
+    .qty { display: flex; align-items: center; gap: 8px; }
+    .qty button { width: 32px; height: 32px; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: #f8fafc; font-size: 1.1rem; cursor: pointer; }
+    .qty button:hover { border-color: #38bdf8; }
+    .remove { background: none; border: none; color: #f87171; cursor: pointer; font-size: 0.88rem; padding: 6px; }
+    .remove:hover { text-decoration: underline; }
+
+    .empty { grid-column: 1 / -1; text-align: center; padding: 40px 20px; border: 1px dashed #334155; border-radius: 12px; color: #94a3b8; line-height: 1.5; }
+
+    footer { background: #0b1120; border-top: 1px solid #1e293b; padding: 24px 20px; text-align: center; color: #64748b; font-size: 0.9rem; }
+
+    @media (max-width: 520px) {
+      h1 { font-size: 1.6rem; }
+      .toolbar select { width: 100%; }
+      .actions .btn { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a class="brand" href="index.html"><img src="logo.png" alt="" width="36" height="36">Swappr</a>
+    <nav><a href="index.html">Torna alla home</a></nav>
+  </header>
+
+  <main>
+    <h1>Il tuo Binder</h1>
+    <p class="lead">Elenca le carte che hai in doppio e quelle che ti mancano. Saranno la base per trovare scambi equilibrati.</p>
+
+    <section class="stats" aria-label="Riepilogo">
+      <div class="stat"><strong id="stat-have">0</strong><span>Carte che possiedi</span></div>
+      <div class="stat"><strong id="stat-want">0</strong><span>Carte che cerchi</span></div>
+      <div class="stat"><strong id="stat-games">0</strong><span>Giochi nel binder</span></div>
+    </section>
+
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" id="tab-have" aria-selected="true" data-list="have">Carte che ho</button>
+      <button class="tab" role="tab" id="tab-want" aria-selected="false" data-list="want">Carte che cerco</button>
+    </div>
+
+    <section class="panel" aria-labelledby="form-title">
+      <h2 id="form-title">Aggiungi una carta</h2>
+      <form id="card-form">
+        <div class="form-grid">
+          <div class="field wide">
+            <label for="name">Nome della carta</label>
+            <input id="name" type="text" maxlength="80" placeholder="Es. Charizard" required>
+          </div>
+          <div class="field">
+            <label for="game">Gioco</label>
+            <select id="game" required>
+              <option>Pokémon</option>
+              <option>Magic: The Gathering</option>
+              <option>Yu-Gi-Oh!</option>
+              <option>One Piece</option>
+              <option>Lorcana</option>
+              <option>Carte sportive</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="set">Espansione</label>
+            <input id="set" type="text" maxlength="60" placeholder="Es. Base Set">
+          </div>
+          <div class="field">
+            <label for="rarity">Rarità</label>
+            <input id="rarity" type="text" maxlength="40" placeholder="Es. Holo Rare">
+          </div>
+          <div class="field" id="cond-field">
+            <label for="cond">Condizioni</label>
+            <select id="cond">
+              <option value="M">Mint (M)</option>
+              <option value="NM" selected>Near Mint (NM)</option>
+              <option value="EX">Excellent (EX)</option>
+              <option value="GD">Good (GD)</option>
+              <option value="LP">Light Played (LP)</option>
+              <option value="PL">Played (PL)</option>
+              <option value="PO">Poor (PO)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="qty">Quantità</label>
+            <input id="qty" type="number" min="1" max="999" value="1" required>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn" type="submit">Aggiungi al binder</button>
+          <button class="btn ghost" type="button" id="reset">Svuota campi</button>
+          <span class="msg" id="msg" role="status" aria-live="polite"></span>
+        </div>
+      </form>
+    </section>
+
+    <section aria-labelledby="list-title">
+      <div class="toolbar">
+        <h2 id="list-title">Carte che ho</h2>
+        <label class="sr-only" for="filter" style="position:absolute;left:-9999px">Filtra per gioco</label>
+        <select id="filter">
+          <option value="">Tutti i giochi</option>
+        </select>
+      </div>
+      <div class="grid" id="grid"></div>
+    </section>
+  </main>
+
+  <footer>© 2026 Swappr. Tutti i diritti riservati.</footer>
+
+  <script>
+    // I dati sono salvati nel browser (localStorage). Quando collegherai Supabase,
+    // sostituisci load() e save() con le chiamate al database.
+    const STORAGE_KEY = 'swappr-binder-v1';
+    const GAMES = ['Pokémon', 'Magic: The Gathering', 'Yu-Gi-Oh!', 'One Piece', 'Lorcana', 'Carte sportive'];
+    const TITLES = { have: 'Carte che ho', want: 'Carte che cerco' };
+    let state = { have: [], want: [] };
+    let current = 'have';
+
+    function load() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          state = { have: parsed.have || [], want: parsed.want || [] };
+        }
+      } catch (e) { /* storage non disponibile: si parte da vuoto */ }
+    }
+    function save() {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+    }
+
+    const $ = id => document.getElementById(id);
+    const el = (tag, cls, text) => {
+      const n = document.createElement(tag);
+      if (cls) n.className = cls;
+      if (text !== undefined) n.textContent = text;
+      return n;
+    };
+
+    function setupFilter() {
+      const f = $('filter');
+      GAMES.forEach(g => { const o = el('option', '', g); o.value = g; f.appendChild(o); });
+    }
+
+    function renderStats() {
+      const count = list => list.reduce((s, c) => s + c.qty, 0);
+      $('stat-have').textContent = count(state.have);
+      $('stat-want').textContent = count(state.want);
+      const games = new Set([...state.have, ...state.want].map(c => c.game));
+      $('stat-games').textContent = games.size;
+    }
+
+    function renderList() {
+      const grid = $('grid');
+      grid.replaceChildren();
+      const filter = $('filter').value;
+      const items = state[current].filter(c => !filter || c.game === filter);
+
+      if (!items.length) {
+        const msg = state[current].length
+          ? 'Nessuna carta per questo gioco. Scegli un altro filtro o aggiungine una.'
+          : (current === 'have'
+              ? 'Il tuo binder è vuoto. Aggiungi le carte che hai in doppio con il modulo qui sopra.'
+              : 'Non hai ancora indicato nessuna carta. Aggiungi quelle che ti mancano per completare la collezione.');
+        grid.appendChild(el('div', 'empty', msg));
+        return;
+      }
+
+      items.forEach(c => {
+        const card = el('article', 'card');
+        card.appendChild(el('h3', '', c.name));
+
+        const meta = el('div', 'meta');
+        meta.appendChild(el('span', 'tag game', c.game));
+        if (current === 'have') meta.appendChild(el('span', 'tag', c.cond));
+        if (c.rarity) meta.appendChild(el('span', 'tag', c.rarity));
+        card.appendChild(meta);
+
+        if (c.set) card.appendChild(el('p', 'sub', c.set));
+
+        const foot = el('div', 'card-foot');
+        const qty = el('div', 'qty');
+        const minus = el('button', '', '−'); minus.type = 'button'; minus.setAttribute('aria-label', 'Diminuisci quantità di ' + c.name);
+        const num = el('span', '', 'x' + c.qty);
+        const plus = el('button', '', '+'); plus.type = 'button'; plus.setAttribute('aria-label', 'Aumenta quantità di ' + c.name);
+        minus.addEventListener('click', () => changeQty(c.id, -1));
+        plus.addEventListener('click', () => changeQty(c.id, 1));
+        qty.append(minus, num, plus);
+
+        const rm = el('button', 'remove', 'Rimuovi'); rm.type = 'button';
+        rm.setAttribute('aria-label', 'Rimuovi ' + c.name);
+        rm.addEventListener('click', () => removeCard(c.id));
+        foot.append(qty, rm);
+        card.appendChild(foot);
+        grid.appendChild(card);
+      });
+    }
+
+    function render() {
+      renderStats();
+      renderList();
+    }
+
+    function changeQty(id, delta) {
+      const c = state[current].find(x => x.id === id);
+      if (!c) return;
+      c.qty = Math.min(999, Math.max(1, c.qty + delta));
+      save(); render();
+    }
+    function removeCard(id) {
+      state[current] = state[current].filter(x => x.id !== id);
+      save(); render();
+    }
+
+    function switchTab(list) {
+      current = list;
+      document.querySelectorAll('.tab').forEach(t => t.setAttribute('aria-selected', String(t.dataset.list === list)));
+      $('list-title').textContent = TITLES[list];
+      $('cond-field').style.display = list === 'have' ? '' : 'none';
+      $('msg').textContent = '';
+      render();
+    }
+
+    document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => switchTab(t.dataset.list)));
+    $('filter').addEventListener('change', renderList);
+
+    $('card-form').addEventListener('submit', e => {
+      e.preventDefault();
+      const name = $('name').value.trim();
+      if (!name) return;
+      const card = {
+        id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+        name,
+        game: $('game').value,
+        set: $('set').value.trim(),
+        rarity: $('rarity').value.trim(),
+        cond: $('cond').value,
+        qty: Math.min(999, Math.max(1, parseInt($('qty').value, 10) || 1))
+      };
+      // Se la carta identica esiste già, somma la quantità
+      const same = state[current].find(c =>
+        c.name.toLowerCase() === card.name.toLowerCase() && c.game === card.game &&
+        c.set.toLowerCase() === card.set.toLowerCase() && c.rarity.toLowerCase() === card.rarity.toLowerCase() &&
+        (current === 'want' || c.cond === card.cond));
+      if (same) same.qty = Math.min(999, same.qty + card.qty); else state[current].unshift(card);
+      save(); render();
+      $('msg').textContent = '“' + name + '” aggiunta a «' + TITLES[current] + '».';
+      $('name').value = ''; $('set').value = ''; $('rarity').value = ''; $('qty').value = 1;
+      $('name').focus();
+    });
+
+    $('reset').addEventListener('click', () => {
+      $('card-form').reset();
+      $('msg').textContent = '';
+    });
+
+    load(); setupFilter(); switchTab('have');
+  </script>
+</body>
+</html>
