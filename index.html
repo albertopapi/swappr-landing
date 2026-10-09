@@ -25,6 +25,8 @@
     .logo {
       max-width: 180px;
       margin-bottom: 40px;
+      height: auto;
+      background: transparent;
     }
     h1 {
       font-size: 2.5rem;
@@ -102,8 +104,8 @@
   <h1>Il modo più veloce per scambiare ciò che desideri.</h1>
   <p class="subtitle">Entra nella lista d'attesa per accedere in anteprima alla piattaforma.</p>
 
-  <form class="form-container" onsubmit="event.preventDefault(); alert('Grazie per esserti iscritto!');">
-    <input type="email" placeholder="Inserisci la tua email..." required>
+  <form class="form-container" action="https://formspree.io/f/xqpeqryy" method="POST">
+    <input type="email" name="email" placeholder="Inserisci la tua email..." required>
     <button type="submit">Unisciti</button>
   </form>
 
