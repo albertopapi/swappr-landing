@@ -4,6 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Swappr - La Piattaforma per lo Swap di Carte Collezionabili</title>
+  <meta name="description" content="Swappr è la piattaforma per collezionisti per scambiare carte Pokémon, Yu-Gi-Oh!, Magic, One Piece, Lorcana e sportive. Iscriviti alla lista d'attesa per l'accesso in Beta.">
+
+  <!-- Open Graph / social -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Swappr - Scambia le tue carte collezionabili">
+  <meta property="og:description" content="Trova le carte che cerchi, scambia i tuoi doppi. Iscriviti alla Beta e ottieni il badge Founder.">
+  <meta property="og:image" content="https://swappr.org/logo.png">
+  <meta property="og:locale" content="it_IT">
+  <meta name="twitter:card" content="summary">
+
   <style>
     * {
       margin: 0;
@@ -11,19 +21,27 @@
       box-sizing: border-box;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
+    html {
+      background-color: #0f172a;
+    }
     body {
       background-color: #0f172a;
       color: #f8fafc;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
       min-height: 100vh;
-      padding: 40px 20px;
       text-align: center;
+    }
+    main {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      padding: 40px 20px 0 20px;
     }
     .logo {
       max-width: 180px;
+      width: 100%;
       margin-bottom: 30px;
       height: auto;
       background: transparent;
@@ -43,22 +61,46 @@
       max-width: 580px;
       margin-bottom: 32px;
     }
-    .form-container {
+
+    /* Form */
+    .signup {
+      width: 100%;
+      max-width: 420px;
+      margin-bottom: 16px;
+    }
+    .form-row {
       display: flex;
       gap: 10px;
       width: 100%;
-      max-width: 420px;
-      margin-bottom: 60px;
+    }
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
     }
     input[type="email"] {
       flex: 1;
+      min-width: 0;
       padding: 14px 18px;
       border-radius: 8px;
       border: 1px solid #334155;
       background-color: #1e293b;
       color: #fff;
       font-size: 1rem;
-      outline: none;
+    }
+    input[type="email"]::placeholder {
+      color: #94a3b8;
+    }
+    input[type="email"]:focus {
+      outline: 2px solid #38bdf8;
+      outline-offset: 2px;
+      border-color: #38bdf8;
     }
     button {
       padding: 14px 24px;
@@ -74,7 +116,60 @@
     button:hover {
       background-color: #1d4ed8;
     }
-    
+    button:focus-visible {
+      outline: 2px solid #38bdf8;
+      outline-offset: 2px;
+    }
+    .consent {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-top: 12px;
+      text-align: left;
+      font-size: 0.8rem;
+      color: #94a3b8;
+      line-height: 1.4;
+    }
+    .consent input {
+      margin-top: 3px;
+      flex-shrink: 0;
+      accent-color: #2563eb;
+    }
+    .consent a {
+      color: #38bdf8;
+    }
+
+    .early-badge {
+      display: inline-block;
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid #38bdf8;
+      color: #38bdf8;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 50px;
+    }
+
+    /* Games Badge Bar */
+    .games-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+      max-width: 800px;
+      margin-bottom: 60px;
+    }
+    .game-badge {
+      background: #1e293b;
+      border: 1px solid #334155;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      color: #cbd5e1;
+      font-weight: 500;
+    }
+
     /* Sezione Come Funziona */
     .how-it-works {
       max-width: 900px;
@@ -130,6 +225,7 @@
       gap: 20px;
       max-width: 900px;
       width: 100%;
+      margin-bottom: 60px;
     }
     .feature-card {
       background: #1e293b;
@@ -147,57 +243,174 @@
       font-size: 0.95rem;
       color: #94a3b8;
     }
+
+    /* Sezione FAQ */
+    .faq-section {
+      max-width: 800px;
+      width: 100%;
+      margin-bottom: 80px;
+      text-align: left;
+    }
+    .faq-item {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      padding: 18px 22px;
+    }
+    .faq-item h3 {
+      font-size: 1.05rem;
+      color: #f8fafc;
+      margin-bottom: 8px;
+    }
+    .faq-item p {
+      font-size: 0.95rem;
+      color: #94a3b8;
+      line-height: 1.5;
+    }
+
+    /* Footer */
+    footer {
+      width: 100%;
+      background-color: #0b1120;
+      border-top: 1px solid #1e293b;
+      padding: 30px 20px;
+      margin-top: auto;
+      text-align: center;
+      color: #64748b;
+      font-size: 0.9rem;
+    }
+    footer a {
+      color: #38bdf8;
+      text-decoration: none;
+    }
+    footer a:hover {
+      text-decoration: underline;
+    }
+    .footer-links {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    /* Mobile */
+    @media (max-width: 520px) {
+      h1 {
+        font-size: 1.9rem;
+      }
+      p.subtitle {
+        font-size: 1.05rem;
+      }
+      .form-row {
+        flex-direction: column;
+      }
+      button {
+        width: 100%;
+      }
+      .section-title {
+        font-size: 1.5rem;
+      }
+    }
   </style>
 </head>
 <body>
 
-  <img src="logo.png" alt="Swappr Logo" class="logo">
+  <main>
+    <img src="logo.png" alt="Swappr" class="logo" width="180" height="180">
 
-  <h1>Trova le carte che cerchi, <span>scambia i tuoi doppi.</span></h1>
-  <p class="subtitle">La piattaforma dedicata ai collezionisti per scambiare carte Pokémon, Yu-Gi-Oh!, Magic, One Piece e sportive in totale sicurezza e alle migliori condizioni di mercato.</p>
+    <h1>Trova le carte che cerchi, <span>scambia i tuoi doppi.</span></h1>
+    <p class="subtitle">La piattaforma dedicata ai collezionisti per scambiare carte Pokémon, Yu-Gi-Oh!, Magic, One Piece, Lorcana e sportive in modo semplice, trasparente e alla pari.</p>
 
-  <form class="form-container" action="https://formspree.io/f/xqpeqryy" method="POST">
-    <input type="email" name="email" placeholder="Inserisci la tua email per l'accesso in Beta..." required>
-    <button type="submit">Unisciti</button>
-  </form>
-
-  <!-- SEZIONE COME FUNZIONA -->
-  <div class="how-it-works">
-    <h2 class="section-title">Come funziona Swappr</h2>
-    <div class="steps-container">
-      <div class="step-card">
-        <div class="step-number">1</div>
-        <h3>Carica il tuo Binder</h3>
-        <p>Aggiungi le carte che vuoi scambiare specificando gioco, espansione, condizioni (NM, EX...) e rarità.</p>
+    <form class="signup" action="https://formspree.io/f/xqpeqryy" method="POST">
+      <div class="form-row">
+        <label for="email" class="sr-only">Indirizzo email</label>
+        <input type="email" id="email" name="email" placeholder="La tua email per la Beta" autocomplete="email" required>
+        <button type="submit">Unisciti</button>
       </div>
-      <div class="step-card">
-        <div class="step-number">2</div>
-        <h3>Trova il Match Equo</h3>
-        <p>I nostri algoritmi e listini di mercato ti aiutano a proporre e ricevere proposte di scambio bilanciate.</p>
-      </div>
-      <div class="step-card">
-        <div class="step-number">3</div>
-        <h3>Scambia in Sicurezza</h3>
-        <p>Conferma lo scambio, spedisci con tracciamento o concorda l'incontro e completa la tua collezione!</p>
-      </div>
-    </div>
-  </div>
+      <label class="consent">
+        <input type="checkbox" name="consenso_privacy" value="si" required>
+        <span>Acconsento al trattamento della mia email per ricevere l'invito alla Beta e aggiornamenti su Swappr, come descritto nell'<a href="privacy.html">informativa privacy</a>.</span>
+      </label>
+    </form>
 
-  <!-- VANTAGGI CARTE COLLEZIONABILI -->
-  <div class="features">
-    <div class="feature-card">
-      <h3>🃏 Tutti i principali TCG</h3>
-      <p>Supporto completo a Pokémon, Magic: The Gathering, Yu-Gi-Oh!, One Piece, Lorcana e carte sportive.</p>
+    <div class="early-badge">🎁 I primi 500 iscritti otterranno il badge Founder e vantaggi esclusivi</div>
+
+    <!-- GAMES SUPPORTED -->
+    <div class="games-bar">
+      <div class="game-badge">⚡ Pokémon TCG</div>
+      <div class="game-badge">🧙‍♂️ Magic: The Gathering</div>
+      <div class="game-badge">🐉 Yu-Gi-Oh!</div>
+      <div class="game-badge">🏴‍☠️ One Piece TCG</div>
+      <div class="game-badge">✨ Disney Lorcana</div>
+      <div class="game-badge">⚽ Carte Sportive</div>
     </div>
-    <div class="feature-card">
-      <h3>🛡️ Protezione & Trasparenza</h3>
-      <p>Sistema di verifica e garanzia sulle transazioni per tutelare la qualità e la genuinità di ogni carta.</p>
+
+    <!-- SEZIONE COME FUNZIONA -->
+    <section class="how-it-works">
+      <h2 class="section-title">Come funziona Swappr</h2>
+      <div class="steps-container">
+        <div class="step-card">
+          <div class="step-number">1</div>
+          <h3>Carica il tuo Binder</h3>
+          <p>Aggiungi le carte che vuoi scambiare specificando gioco, espansione, condizioni (NM, EX...) e rarità.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">2</div>
+          <h3>Trova il Match Equo</h3>
+          <p>I listini di mercato ti aiutano a proporre e ricevere proposte di scambio bilanciate.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">3</div>
+          <h3>Concludi lo scambio</h3>
+          <p>Conferma lo scambio, spedisci con tracciamento o concorda l'incontro e completa la tua collezione!</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- VANTAGGI CARTE COLLEZIONABILI -->
+    <section class="features">
+      <div class="feature-card">
+        <h3>🃏 Tutti i principali TCG</h3>
+        <p>Supporto a Pokémon, Magic: The Gathering, Yu-Gi-Oh!, One Piece, Lorcana e carte sportive.</p>
+      </div>
+      <div class="feature-card">
+        <h3>🛡️ Fiducia & Trasparenza</h3>
+        <p>Profili verificati e recensioni tra utenti per scambiare con più tranquillità.</p>
+      </div>
+      <div class="feature-card">
+        <h3>📊 Valutazioni di Mercato</h3>
+        <p>Prezzi di riferimento per aiutarti a proporre scambi equilibrati.</p>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="faq-section">
+      <h2 class="section-title" style="text-align: center;">Domande Frequenti</h2>
+      <div class="faq-item">
+        <h3>Come vengono valutati gli scambi?</h3>
+        <p>Ci basiamo sui listini di mercato per stimare il valore delle carte coinvolte e aiutarti a capire se una proposta è equilibrata.</p>
+      </div>
+      <div class="faq-item">
+        <h3>Come funziona la protezione contro le truffe?</h3>
+        <p>Puntiamo su verifica dei profili e recensioni tracciate, e stiamo lavorando a strumenti di tutela per le spedizioni, in modo che entrambe le parti ricevano quanto concordato. I dettagli saranno comunicati al lancio della Beta.</p>
+      </div>
+      <div class="faq-item">
+        <h3>Quando sarà disponibile la Beta?</h3>
+        <p>Stiamo rifinendo gli ultimi dettagli. Gli iscritti alla lista d'attesa riceveranno l'invito prioritario per accedere prima del lancio ufficiale.</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>© 2026 Swappr. Tutti i diritti riservati.</p>
+    <div class="footer-links">
+      <a href="mailto:info@swappr.org">info@swappr.org</a>
+      <a href="privacy.html">Informativa privacy</a>
     </div>
-    <div class="feature-card">
-      <h3>📊 Valutazioni di Mercato</h3>
-      <p>Prezzi di riferimento sempre aggiornati per garantire la massima equità in ogni proposta di scambio.</p>
-    </div>
-  </div>
+  </footer>
 
 </body>
 </html>
