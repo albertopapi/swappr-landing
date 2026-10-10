@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scambi - Swappr</title>
+<link rel="stylesheet" href="swappr.css">
+</head>
+<body>
+<main>
+  <h1>I tuoi scambi</h1>
+  <p class="lead">Segui lo stato di ogni scambio e usa la chat per accordarti su spedizione o incontro.</p>
+  <div class="notice">Anteprima: la chat e gli stati restano su questo dispositivo, perché gli altri collezionisti non sono ancora collegati. Con il database i messaggi arriveranno davvero all'altra persona.</div>
+  <div class="layout">
+    <aside id="list" aria-label="Elenco scambi"></aside>
+    <section id="detail" class="panel" aria-live="polite"></section>
+  </div>
+</main>
+<footer>© 2026 Swappr. Tutti i diritti riservati.</footer>
+<script src="swappr.js"></script>
+<script>
+const $=id=>document.getElementById(id), el=Swappr.el;
+const FLOW=['Proposta','Accettato','Spedito','Completato'];
+let trades=Swappr.get('trades',[]), sel=trades.length?trades[0].id:null;
+const me=()=>(Swappr.get('user',null)||{}).username||'Tu';
+const save=()=>Swappr.set('trades',trades);
+const fmt=t=>new Date(t).toLocaleString('it-IT',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+function addMsg(t,from,text){t.messages.push({from,text,t:Date.now()});save();}
+function renderList(){
+  const l=$('list');l.replaceChildren();
+  if(!trades.length){l.appendChild(el('div','empty','Nessuno scambio.'));
+    const a=el('a','btn small','Vai ai Match');a.href='match.html';a.style.display='inline-block';a.style.marginTop='10px';l.firstChild.appendChild(document.createElement('br'));l.firstChild.appendChild(a);return;}
+  trades.forEach(t=>{
+    const b=el('button','list-item','');b.type='button';
+    b.appendChild(el('strong','',t.with));b.appendChild(document.createElement('br'));
+    b.appendChild(el('span','sub',t.status+' · '+fmt(t.created)));
+    if(t.id===sel)b.setAttribute('aria-current','true');
+    b.onclick=()=>{sel=t.id;render();};l.appendChild(b);
+  });
+}
+function renderDetail(){
+  const d=$('detail');d.replaceChildren();
+  const t=trades.find(x=>x.id===sel);
+  if(!t){d.appendChild(el('p','sub','Seleziona uno scambio per vedere i dettagli.'));return;}
+  d.appendChild(el('h2','','Scambio con '+t.with));
+  d.appendChild(el('p','sub','Tu dai: '+t.give));
+  d.appendChild(el('p','sub','Tu ricevi: '+t.get));
+  const s=el('div','steps');
+  if(t.status==='Annullato')s.appendChild(el('span','tag warn','Annullato'));
+  else FLOW.forEach(f=>s.appendChild(el('span','tag '+(FLOW.indexOf(f)<=FLOW.indexOf(t.status)?'ok':''),f)));
+  d.appendChild(s);
+  const open=t.status!=='Completato'&&t.status!=='Annullato';
+  if(open){
+    const r=el('div','row');r.style.marginBottom='14px';
+    const next=FLOW[FLOW.indexOf(t.status)+1];
+    const n=el('button','btn small','Segna come: '+next);n.type='button';
+    n.onclick=()=>{t.status=next;addMsg(t,'sistema','Stato aggiornato: '+next+'.');render();};
+    const c=el('button','btn small danger','Annulla scambio');c.type='button';
+    c.onclick=()=>{if(confirm('Annullare questo scambio?')){t.status='Annullato';addMsg(t,'sistema','Scambio annullato.');render();}};
+    r.append(n,c);d.appendChild(r);
+  }
+  const chat=el('div','chat');chat.setAttribute('role','log');
+  t.messages.forEach(m=>{
+    const b=el('div','bubble '+(m.from==='sistema'?'sys':'me'),m.text);
+    if(m.from!=='sistema'){const sm=el('small','',m.from+' · '+fmt(m.t));b.appendChild(sm);}
+    chat.appendChild(b);
+  });
+  d.appendChild(chat);chat.scrollTop=chat.scrollHeight;
+  if(open){
+    const f=el('form','chat-form');
+    const i=document.createElement('input');i.maxLength=300;i.placeholder='Scrivi un messaggio…';i.setAttribute('aria-label','Messaggio');
+    const b=el('button','btn small','Invia');b.type='submit';
+    f.append(i,b);
+    f.onsubmit=e=>{e.preventDefault();const v=i.value.trim();if(!v)return;addMsg(t,me(),v);render();};
+    d.appendChild(f);
+  }
+}
+function render(){renderList();renderDetail();}
+render();
+</script>
+</body>
+</html>

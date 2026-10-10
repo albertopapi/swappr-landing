@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cerca carte - Swappr</title>
+<link rel="stylesheet" href="swappr.css">
+</head>
+<body>
+<main>
+  <h1>Cerca carte</h1>
+  <p class="lead">Cerca una carta Pokémon, guarda il prezzo di riferimento e aggiungila al tuo binder con un clic.</p>
+  <div class="notice">La ricerca usa il servizio pubblico Pokémon TCG API. Gli altri giochi arriveranno in seguito. I prezzi sono indicativi (media Cardmarket, in euro, quando disponibile).</div>
+
+  <section class="panel">
+    <form id="form">
+      <div class="form-grid">
+        <div class="field wide"><label for="q">Nome della carta</label><input id="q" type="search" maxlength="60" placeholder="Es. Charizard" required></div>
+      </div>
+      <div class="actions"><button class="btn" type="submit">Cerca</button><span class="msg" id="msg" role="status" aria-live="polite"></span></div>
+    </form>
+  </section>
+  <div class="grid" id="results"></div>
+</main>
+<footer>© 2026 Swappr. Tutti i diritti riservati.</footer>
+<script src="swappr.js"></script>
+<script>
+const $=id=>document.getElementById(id), el=Swappr.el;
+function priceOf(c){
+  const cm=c.cardmarket&&c.cardmarket.prices;
+  if(cm&&cm.averageSellPrice)return{eur:cm.averageSellPrice};
+  const tp=c.tcgplayer&&c.tcgplayer.prices;
+  if(tp){const k=Object.keys(tp)[0];if(k&&tp[k]&&tp[k].market)return{usd:tp[k].market};}
+  return null;
+}
+function add(c,list){
+  const p=priceOf(c);
+  const ok=Swappr.addCard(list,{name:c.name,game:'Pokémon',set:(c.set&&c.set.name)||'',rarity:c.rarity||'',cond:'NM',qty:1,price:p&&p.eur?Math.round(p.eur*100)/100:null});
+  $('msg').textContent=ok?'“'+c.name+'” aggiunta a '+(list==='have'?'«Carte che ho»':'«Carte che cerco»')+'.':'Impossibile salvare: controlla le impostazioni del browser.';
+}
+function render(cards){
+  const g=$('results');g.replaceChildren();
+  if(!cards.length){g.appendChild(el('div','empty','Nessuna carta trovata. Prova con un altro nome (in inglese, ad esempio Pikachu).'));return;}
+  cards.forEach(c=>{
+    const card=el('article','card');
+    if(c.images&&c.images.small){const i=document.createElement('img');i.src=c.images.small;i.alt=c.name;i.loading='lazy';card.appendChild(i);}
+    card.appendChild(el('h3','',c.name));
+    const m=el('div','meta');
+    if(c.set&&c.set.name)m.appendChild(el('span','tag info',c.set.name));
+    if(c.rarity)m.appendChild(el('span','tag',c.rarity));
+    card.appendChild(m);
+    const p=priceOf(c);
+    card.appendChild(el('p','sub',p?(p.eur?'Prezzo medio: '+Swappr.eur(p.eur):'Prezzo: '+p.usd.toFixed(2)+' $ (non usato nel match)'):'Prezzo non disponibile'));
+    const r=el('div','row');
+    const a=el('button','btn small','Ho questa');a.type='button';a.onclick=()=>add(c,'have');
+    const b=el('button','btn small ghost','La cerco');b.type='button';b.onclick=()=>add(c,'want');
+    r.append(a,b);card.appendChild(r);g.appendChild(card);
+  });
+}
+$('form').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const term=$('q').value.trim().replace(/["\\]/g,'');
+  if(!term)return;
+  $('msg').textContent='';
+  $('results').replaceChildren(el('div','empty','Ricerca in corso…'));
+  try{
+    const url='https://api.pokemontcg.io/v2/cards?pageSize=12&select=id,name,rarity,set,images,cardmarket,tcgplayer&q='+encodeURIComponent('name:"'+term+'*"');
+    const r=await fetch(url);
+    if(!r.ok)throw new Error(r.status);
+    const j=await r.json();
+    render(j.data||[]);
+  }catch(err){
+    $('results').replaceChildren(el('div','empty','Non riesco a contattare il servizio carte in questo momento. Riprova tra poco, oppure aggiungi la carta a mano dal Binder.'));
+  }
+});
+</script>
+</body>
+</html>

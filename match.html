@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Match equi - Swappr</title>
+<link rel="stylesheet" href="swappr.css">
+</head>
+<body>
+<main>
+  <h1>Match equi</h1>
+  <p class="lead">Swappr confronta le carte che hai in doppio con quelle che cercano gli altri collezionisti e viceversa, e valuta se lo scambio è equilibrato.</p>
+  <div class="notice">Anteprima: i collezionisti qui sotto sono utenti dimostrativi con prezzi indicativi, non persone reali. Uno scambio è considerato equo se la differenza di valore è entro il 15%.</div>
+  <div class="actions" style="margin:0 0 20px"><button class="btn ghost" id="sample" type="button">Carica carte di esempio nel binder</button><span class="msg" id="msg" role="status" aria-live="polite"></span></div>
+  <div class="grid" id="matches"></div>
+</main>
+<footer>© 2026 Swappr. Tutti i diritti riservati.</footer>
+<script src="swappr.js"></script>
+<script>
+const $=id=>document.getElementById(id), el=Swappr.el;
+const DEMO=[
+ {u:'Marco_TCG',have:[['Charizard',120],['Blastoise',60],['Pikachu',8]],want:['Mewtwo','Gengar']},
+ {u:'Giulia_Cards',have:[['Mewtwo',45],['Gengar',25],['Eevee',6]],want:['Charizard','Snorlax']},
+ {u:'Luca_Collector',have:[['Snorlax',10],['Lugia',35],['Umbreon',40]],want:['Pikachu','Blastoise']},
+ {u:'Sara_Swap',have:[['Rayquaza',55],['Mew',30]],want:['Umbreon','Lugia','Eevee']}
+];
+const lookup={};DEMO.forEach(u=>u.have.forEach(([n,p])=>lookup[n.toLowerCase()]=p));
+const myPrice=c=>c.price||lookup[c.name.toLowerCase()]||null;
+const sum=a=>a.reduce((s,x)=>s+(x.price||0),0);
+const list=a=>a.map(x=>x.name+' ('+Swappr.eur(x.price)+')').join(', ');
+function compute(){
+  const b=Swappr.binder();
+  const want=new Set(b.want.map(c=>c.name.toLowerCase()));
+  return DEMO.map(u=>{
+    const theirs=new Set(u.want.map(n=>n.toLowerCase()));
+    const give=b.have.filter(c=>theirs.has(c.name.toLowerCase())).map(c=>({name:c.name,price:myPrice(c)}));
+    const get=u.have.filter(([n])=>want.has(n.toLowerCase())).map(([n,p])=>({name:n,price:p}));
+    const g=sum(give),r=sum(get),unknown=give.concat(get).some(x=>!x.price);
+    const diff=r-g,gap=Math.max(g,r)?Math.abs(diff)/Math.max(g,r):1;
+    return{u:u.u,give,get,diff,fair:!unknown&&g>0&&r>0&&gap<=0.15,unknown};
+  }).filter(m=>m.give.length&&m.get.length).sort((a,b)=>(b.fair-a.fair)||(Math.abs(a.diff)-Math.abs(b.diff)));
+}
+function propose(m){
+  const t=Swappr.get('trades',[]);
+  if(t.some(x=>x.with===m.u&&x.status!=='Annullato'&&x.status!=='Completato')){$('msg').textContent='Hai già uno scambio aperto con '+m.u+'. Lo trovi in «Scambi».';return;}
+  const me=(Swappr.get('user',null)||{}).username||'Tu';
+  t.unshift({id:Date.now().toString(36),with:m.u,give:list(m.give),get:list(m.get),status:'Proposta',created:Date.now(),
+    messages:[{from:'sistema',text:'Scambio proposto: '+me+' dà '+list(m.give)+' e riceve '+list(m.get)+'.',t:Date.now()}]});
+  Swappr.set('trades',t);
+  $('msg').textContent='Proposta creata con '+m.u+'. Continua in «Scambi».';
+}
+function render(){
+  const g=$('matches');g.replaceChildren();
+  const ms=compute();
+  if(!ms.length){
+    const b=Swappr.binder();
+    g.appendChild(el('div','empty',b.have.length||b.want.length?'Per ora nessun match con gli utenti dimostrativi. Aggiungi più carte Pokémon al binder o prova le carte di esempio.':'Il tuo binder è vuoto. Aggiungi delle carte dalla pagina Cerca o dal Binder, oppure carica le carte di esempio.'));
+    return;
+  }
+  ms.forEach(m=>{
+    const c=el('article','card');
+    c.appendChild(el('h3','','Scambio con '+m.u));
+    const tags=el('div','meta');
+    if(m.fair)tags.appendChild(el('span','tag ok','Equo'));
+    else if(m.unknown)tags.appendChild(el('span','tag warn','Prezzo mancante'));
+    else tags.appendChild(el('span','tag warn',(m.diff>0?'Tu aggiungi ':'L\'altro aggiunge ')+Swappr.eur(Math.abs(m.diff))));
+    tags.appendChild(el('span','tag info','Utente dimostrativo'));
+    c.appendChild(tags);
+    c.appendChild(el('p','sub','Tu dai: '+list(m.give)));
+    c.appendChild(el('p','sub','Tu ricevi: '+list(m.get)));
+    const r=el('div','row');
+    const b=el('button','btn small','Proponi scambio');b.type='button';b.onclick=()=>propose(m);
+    r.appendChild(b);c.appendChild(r);g.appendChild(c);
+  });
+}
+$('sample').addEventListener('click',()=>{
+  [['have','Charizard'],['have','Pikachu'],['want','Mewtwo'],['want','Lugia'],['want','Blastoise']].forEach(([l,n])=>Swappr.addCard(l,{name:n,game:'Pokémon',set:'',rarity:'',cond:'NM',qty:1,price:null}));
+  $('msg').textContent='Carte di esempio aggiunte al binder.';render();
+});
+render();
+</script>
+</body>
+</html>
