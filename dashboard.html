@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Il mio valore - Swappr</title>
+<link rel="stylesheet" href="swappr.css">
+</head>
+<body>
+<main>
+  <h1>Il valore del tuo binder</h1>
+  <p class="lead">Quanto valgono le tue carte, quali pesano di più e come fare il backup dei tuoi dati.</p>
+  <div class="notice">I valori usano il prezzo medio Cardmarket salvato quando hai aggiunto la carta da Cerca o dal Catalogo: sono indicativi e non si aggiornano da soli. I dati restano nel tuo browser, quindi fai ogni tanto un backup.</div>
+  <section class="stats">
+    <div class="stat"><strong id="v-have">€0</strong><span>Valore carte che ho</span></div>
+    <div class="stat"><strong id="v-want">€0</strong><span>Costo carte che cerco</span></div>
+    <div class="stat"><strong id="n-have">0</strong><span>Carte possedute</span></div>
+    <div class="stat"><strong id="n-nop">0</strong><span>Senza prezzo</span></div>
+  </section>
+  <section class="panel"><h2>Valore per gioco</h2><div id="bars"></div></section>
+  <section class="panel"><h2>Le 5 carte più preziose</h2><div id="top"></div></section>
+  <section class="panel">
+    <h2>Backup e condivisione</h2>
+    <div class="actions">
+      <button class="btn" id="exp-json" type="button">Scarica backup (JSON)</button>
+      <button class="btn ghost" id="exp-csv" type="button">Esporta CSV</button>
+      <label class="btn ghost" for="imp" style="display:inline-block;cursor:pointer">Importa backup</label><input id="imp" type="file" accept=".json,application/json" hidden>
+      <button class="btn ghost" id="share" type="button">Crea link di condivisione</button>
+    </div>
+    <div class="field" id="sharebox" hidden style="margin-top:14px">
+      <label for="link">Link da inviare ad altri collezionisti</label><input id="link" readonly>
+      <div class="actions"><button class="btn small" id="copy" type="button">Copia link</button></div>
+    </div>
+    <p class="msg" id="msg" role="status" aria-live="polite" style="margin-top:10px"></p>
+    <div class="actions"><button class="btn danger small" id="wipe" type="button">Cancella tutti i dati locali</button></div>
+  </section>
+</main>
+<footer>© 2026 Swappr. Tutti i diritti riservati.</footer>
+<script src="swappr.js"></script>
+<script>
+const $=id=>document.getElementById(id), el=Swappr.el, msg=t=>{$('msg').textContent=t;};
+const GAMES=['Pokémon','Magic: The Gathering','Yu-Gi-Oh!','One Piece','Lorcana','Carte sportive'];
+const val=l=>l.reduce((s,c)=>s+(c.price||0)*c.qty,0);
+function render(){
+  const b=Swappr.binder();
+  $('v-have').textContent=Swappr.eur(val(b.have));$('v-want').textContent=Swappr.eur(val(b.want));
+  $('n-have').textContent=b.have.reduce((s,c)=>s+c.qty,0);$('n-nop').textContent=b.have.filter(c=>!c.price).length;
+  const by={};b.have.forEach(c=>{by[c.game]=(by[c.game]||0)+(c.price||0)*c.qty;});
+  const g=Object.entries(by).sort((a,b)=>b[1]-a[1]),max=g.length?Math.max(g[0][1],1):1;
+  $('bars').replaceChildren(...(g.length?g.map(([n,v])=>{
+    const r=el('div','bar-row'),bar=el('div','bar'),i=document.createElement('i');i.style.width=Math.round(v/max*100)+'%';bar.appendChild(i);
+    r.append(el('span','',n),bar,el('strong','',Swappr.eur(v)));return r;}):[el('p','sub','Nessuna carta nel binder.')]));
+  const top=b.have.filter(c=>c.price).sort((a,b)=>b.price-a.price).slice(0,5);
+  $('top').replaceChildren(...(top.length?top.map(c=>{const r=el('div','rowline');r.append(el('span','',c.name+(c.set?' · '+c.set:'')+' ×'+c.qty),el('strong','',Swappr.eur(c.price)));return r;}):[el('p','sub','Aggiungi carte da Cerca o dal Catalogo per vedere i prezzi.')]));
+}
+function download(name,text,type){
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;
+  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+$('exp-json').onclick=()=>{download('swappr-backup.json',JSON.stringify({app:'swappr',version:1,binder:Swappr.binder()},null,2),'application/json');msg('Backup scaricato.');};
+const q=v=>{let s=String(v==null?'':v);if(/^[=+\-@]/.test(s))s="'"+s;return'"'+s.replace(/"/g,'""')+'"';};
+$('exp-csv').onclick=()=>{
+  const rows=[['nome','gioco','espansione','rarita','condizioni','quantita','prezzo_eur']].concat(Swappr.binder().have.map(c=>[c.name,c.game,c.set,c.rarity,c.cond,c.qty,c.price]));
+  download('swappr-binder.csv',rows.map(r=>r.map(q).join(',')).join('\n'),'text/csv');msg('CSV scaricato.');
+};
+const clean=a=>(Array.isArray(a)?a:[]).slice(0,2000).filter(c=>c&&typeof c.name==='string'&&c.name.trim()).map(c=>({
+  id:Date.now().toString(36)+Math.random().toString(36).slice(2,7),name:c.name.trim().slice(0,80),
+  game:GAMES.includes(c.game)?c.game:'Pokémon',set:String(c.set||'').slice(0,60),rarity:String(c.rarity||'').slice(0,40),
+  cond:/^(M|NM|EX|GD|LP|PL|PO)$/.test(c.cond)?c.cond:'NM',qty:Math.min(999,Math.max(1,parseInt(c.qty,10)||1)),
+  price:typeof c.price==='number'&&c.price>0&&c.price<1e6?c.price:null}));
+$('imp').onchange=e=>{
+  const f=e.target.files[0];e.target.value='';if(!f)return;
+  if(f.size>2e6){msg('File troppo grande.');return;}
+  const r=new FileReader();
+  r.onload=()=>{
+    try{
+      const j=JSON.parse(r.result),src=j.binder||j,have=clean(src.have),want=clean(src.want);
+      if(!have.length&&!want.length)throw new Error('vuoto');
+      if(!confirm('Sostituire il binder attuale con quello del backup ('+have.length+' carte che hai, '+want.length+' che cerchi)?'))return;
+      Swappr.set('binder',{have,want});render();msg('Backup importato.');
+    }catch(err){msg('File non valido: scegli un backup scaricato da Swappr.');}
+  };
+  r.readAsText(f);
+};
+$('share').onclick=()=>{
+  const b=Swappr.binder(),u=Swappr.get('user',null);
+  const d={u:u?u.username:'',h:b.have.map(c=>[c.name,c.set,c.cond,c.qty]),w:b.want.map(c=>[c.name,c.set,c.qty])};
+  const url=new URL('condividi.html',location.href).href+'#'+btoa(unescape(encodeURIComponent(JSON.stringify(d))));
+  $('link').value=url;$('sharebox').hidden=false;
+  msg(url.length>8000?'Il link è molto lungo e potrebbe non funzionare in alcune app: condividi una lista più corta.':'Link creato. Le liste sono dentro il link, non sul nostro server, e chi lo apre non può modificarle.');
+};
+$('copy').onclick=async()=>{try{await navigator.clipboard.writeText($('link').value);msg('Link copiato.');}catch(e){$('link').select();msg('Copia il link a mano con Ctrl+C.');}};
+$('wipe').onclick=()=>{
+  if(!confirm('Cancellare binder e scambi da questo dispositivo? Non si può annullare.'))return;
+  Swappr.set('binder',{have:[],want:[]});Swappr.set('trades',[]);render();msg('Dati locali cancellati.');
+};
+render();
+</script>
+</body>
+</html>

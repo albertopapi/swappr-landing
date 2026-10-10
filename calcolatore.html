@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calcolatore di scambio - Swappr</title>
+<link rel="stylesheet" href="swappr.css">
+</head>
+<body>
+<main>
+  <h1>Calcolatore di scambio</h1>
+  <p class="lead">Metti a confronto le carte che dai e quelle che ricevi e scopri se lo scambio è equilibrato.</p>
+  <div class="notice">I prezzi li inserisci tu: se la carta è nel tuo binder con un prezzo, viene proposto in automatico. Entro il 15% di differenza lo scambio è considerato equo.</div>
+  <datalist id="names"></datalist>
+  <div class="two" id="sides"></div>
+  <section class="stats" style="margin-top:20px">
+    <div class="stat"><strong id="tot-give">€0</strong><span>Totale che dai</span></div>
+    <div class="stat"><strong id="tot-get">€0</strong><span>Totale che ricevi</span></div>
+  </section>
+  <div class="meta" id="verdict" aria-live="polite"></div>
+</main>
+<footer>© 2026 Swappr. Tutti i diritti riservati.</footer>
+<script src="swappr.js"></script>
+<script>
+const $=id=>document.getElementById(id), el=Swappr.el, S={give:[],get:[]};
+const b=Swappr.binder(), mine=b.have.concat(b.want);
+new Set(mine.map(c=>c.name)).forEach(n=>{const o=document.createElement('option');o.value=n;$('names').appendChild(o);});
+function build(side,title){
+  const p=el('section','panel');p.appendChild(el('h2','',title));
+  const list=el('div');list.id='list-'+side;p.appendChild(list);
+  const f=el('form','form-grid');f.style.marginTop='12px';
+  f.innerHTML='<div class="field wide"><label>Carta<input name="n" maxlength="80" list="names" required></label></div><div class="field"><label>Quantità<input name="q" type="number" min="1" max="99" value="1"></label></div><div class="field"><label>Prezzo (€)<input name="p" type="number" min="0" step="0.01" required></label></div><div class="field wide"><button class="btn small" type="submit">Aggiungi</button></div>';
+  f.n.addEventListener('input',()=>{
+    const m=mine.find(c=>c.price&&c.name.toLowerCase()===f.n.value.trim().toLowerCase());
+    if(m&&!f.p.value)f.p.value=m.price;
+  });
+  f.addEventListener('submit',e=>{
+    e.preventDefault();
+    S[side].push({name:f.n.value.trim().slice(0,80),qty:Math.min(99,Math.max(1,parseInt(f.q.value,10)||1)),price:Math.max(0,parseFloat(f.p.value)||0)});
+    f.reset();render();f.n.focus();
+  });
+  p.appendChild(f);return p;
+}
+$('sides').append(build('give','Tu dai'),build('get','Tu ricevi'));
+function render(){
+  ['give','get'].forEach(s=>{
+    const l=$('list-'+s);l.replaceChildren();
+    if(!S[s].length)l.appendChild(el('p','sub','Nessuna carta aggiunta.'));
+    S[s].forEach((c,i)=>{
+      const r=el('div','rowline');r.appendChild(el('span','',c.qty+'× '+c.name));
+      const rt=el('span');rt.appendChild(el('strong','',Swappr.eur(c.price*c.qty)+' '));
+      const x=el('button','','✕');x.type='button';x.setAttribute('aria-label','Rimuovi '+c.name);
+      x.onclick=()=>{S[s].splice(i,1);render();};
+      rt.appendChild(x);r.appendChild(rt);l.appendChild(r);
+    });
+  });
+  const t=s=>S[s].reduce((a,c)=>a+c.price*c.qty,0),g=t('give'),r=t('get'),d=r-g,mx=Math.max(g,r);
+  $('tot-give').textContent=Swappr.eur(g);$('tot-get').textContent=Swappr.eur(r);
+  const v=$('verdict');v.replaceChildren();
+  if(!g||!r){v.appendChild(el('span','tag info','Aggiungi carte da entrambe le parti'));return;}
+  const gap=Math.abs(d)/mx;
+  v.appendChild(gap<=0.15?el('span','tag ok','Scambio equo (differenza '+Math.round(gap*100)+'%)'):el('span','tag warn','Per pareggiare: '+(d>0?'tu aggiungi ':"l'altro aggiunge ")+Swappr.eur(Math.abs(d))));
+}
+render();
+</script>
+</body>
+</html>
