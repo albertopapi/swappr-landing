@@ -8,8 +8,8 @@
 <body>
 <main>
   <h1>I tuoi scambi</h1>
-  <p class="lead">Segui lo stato di ogni scambio e usa la chat per accordarti su spedizione o incontro.</p>
-  <div class="notice">Anteprima: la chat e gli stati restano su questo dispositivo, perché gli altri collezionisti non sono ancora collegati. Con il database i messaggi arriveranno davvero all'altra persona.</div>
+  <p class="lead">Ogni scambio passa da Swappr: segui lo stato, dalla proposta alla verifica fino alla consegna, e usa la chat per accordarti.</p>
+  <div class="notice">Anteprima: stati e chat sono simulati e restano su questo dispositivo. Con la Beta gli stati saranno aggiornati da Swappr in base ai controlli reali e i messaggi arriveranno davvero all'altra persona.</div>
   <div class="layout">
     <aside id="list" aria-label="Elenco scambi"></aside>
     <section id="detail" class="panel" aria-live="polite"></section>
@@ -19,7 +19,8 @@
 <script src="swappr.js"></script>
 <script>
 const $=id=>document.getElementById(id), el=Swappr.el;
-const FLOW=['Proposta','Accettato','Spedito','Completato'];
+const FLOW=['Proposta','Accettato','Inviato a Swappr','In verifica','Spedito','Completato'];
+const HELP={'Proposta':"In attesa che l'altra parte accetti.",'Accettato':'Ora ognuno prepara le carte e le spedisce a Swappr con spedizione tracciata.','Inviato a Swappr':'Le carte sono in viaggio verso Swappr.','In verifica':'Controlliamo che le carte corrispondano a quanto dichiarato.','Spedito':'Verifica superata: le carte sono state inoltrate alle parti.','Completato':'Scambio concluso. Grazie!','Annullato':'Questo scambio è stato annullato.'};
 let trades=Swappr.get('trades',[]), sel=trades.length?trades[0].id:null;
 const me=()=>(Swappr.get('user',null)||{}).username||'Tu';
 const save=()=>Swappr.set('trades',trades);
@@ -48,6 +49,7 @@ function renderDetail(){
   if(t.status==='Annullato')s.appendChild(el('span','tag warn','Annullato'));
   else FLOW.forEach(f=>s.appendChild(el('span','tag '+(FLOW.indexOf(f)<=FLOW.indexOf(t.status)?'ok':''),f)));
   d.appendChild(s);
+  if(HELP[t.status])d.appendChild(el('p','sub',HELP[t.status]));
   const open=t.status!=='Completato'&&t.status!=='Annullato';
   if(open){
     const r=el('div','row');r.style.marginBottom='14px';

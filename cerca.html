@@ -50,6 +50,7 @@ function render(cards){
     card.appendChild(m);
     const p=priceOf(c);
     card.appendChild(el('p','sub',p?(p.eur?'Prezzo medio: '+Swappr.eur(p.eur):'Prezzo: '+p.usd.toFixed(2)+' $ (non usato nel match)'):'Prezzo non disponibile'));
+    const ex=Swappr.cmExtra(c);if(ex)card.appendChild(el('p','sub',ex));
     const r=el('div','row');
     const a=el('button','btn small','Ho questa');a.type='button';a.onclick=()=>add(c,'have');
     const b=el('button','btn small ghost','La cerco');b.type='button';b.onclick=()=>add(c,'want');

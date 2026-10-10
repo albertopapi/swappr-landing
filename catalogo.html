@@ -15,6 +15,7 @@
       <div class="form-grid">
         <div class="field"><label for="set">Espansione</label><select id="set"><option value="">Caricamento…</option></select></div>
         <div class="field"><label for="name">Filtra per nome</label><input id="name" type="search" maxlength="40"></div>
+        <div class="field"><label for="rar">Rarità</label><select id="rar"><option value="">Tutte</option><option>Common</option><option>Uncommon</option><option>Rare</option><option>Rare Holo</option><option>Rare Holo EX</option><option>Rare Holo GX</option><option>Rare Holo V</option><option>Rare Holo VMAX</option><option>Rare Ultra</option><option>Rare Secret</option><option>Rare Rainbow</option><option>Double Rare</option><option>Ultra Rare</option><option>Illustration Rare</option><option>Special Illustration Rare</option><option>Hyper Rare</option><option>Promo</option></select></div>
       </div>
       <div class="actions"><button class="btn" type="submit">Mostra carte</button><span class="msg" id="msg" role="status" aria-live="polite"></span></div>
     </form>
@@ -58,7 +59,8 @@ async function load(){
   const n=$('name').value.trim().replace(/["\\]/g,'');
   note('Caricamento…');
   try{
-    const q='set.id:'+id+(n?' name:"'+n+'*"':'');
+    const rr=$('rar').value;
+    const q='set.id:'+id+(n?' name:"'+n+'*"':'')+(rr?' rarity:"'+rr+'"':'');
     const j=await api('cards?page='+page+'&pageSize='+SIZE+'&orderBy=number&select=id,name,number,rarity,set,images,cardmarket&q='+encodeURIComponent(q));
     total=j.totalCount||0;last=j.data||[];render();pager();
   }catch(e){note('Non riesco a contattare il servizio carte in questo momento. Riprova tra poco.');}
@@ -85,6 +87,7 @@ function render(){
     card.appendChild(m);
     const p=priceOf(c);
     card.appendChild(el('p','sub',p?'Prezzo medio: '+Swappr.eur(p):'Prezzo non disponibile'));
+    const ex=Swappr.cmExtra(c);if(ex)card.appendChild(el('p','sub',ex));
     const r=el('div','row');
     const a=el('button','btn small','Ho questa');a.type='button';a.onclick=()=>add(c,'have');
     const b=el('button','btn small ghost','La cerco');b.type='button';b.onclick=()=>add(c,'want');
@@ -102,6 +105,7 @@ $('form').addEventListener('submit',e=>{e.preventDefault();page=1;load();});
 $('set').addEventListener('change',()=>{page=1;load();});
 $('prev').addEventListener('click',()=>{page--;load();});
 $('next').addEventListener('click',()=>{page++;load();});
+$('rar').addEventListener('change',()=>{page=1;load();});
 loadSets();
 </script>
 </body>

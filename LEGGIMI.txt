@@ -1,0 +1,26 @@
+SWAPPR - SITO COMPLETO
+======================
+
+Questo archivio contiene TUTTI i file del sito (vecchi e nuovi).
+Il file logo.png NON e' incluso: e' il tuo, lascialo nella cartella.
+
+COME PUBBLICARLO
+1. Estrai lo zip (tasto destro > Estrai tutto).
+2. Apri la cartella estratta e seleziona tutti i file (Ctrl+A), poi Ctrl+C.
+3. Apri Desktop\swappr-landing e premi Ctrl+V.
+4. Quando Windows lo chiede, scegli "Sostituisci i file nella destinazione".
+   Non toccare logo.png e la cartella nascosta .git.
+5. Nel terminale, dentro swappr-landing:
+      git add .
+      git commit -m "Swappr: intermediazione, mercato, verifica"
+      git push
+6. Vercel pubblica da solo in uno o due minuti.
+
+PER ATTIVARE GLI ACCOUNT VERI
+Apri swappr-config.js e inserisci "Project URL" e "anon public key" del tuo
+progetto Supabase (Project Settings > API). Mai la chiave service_role.
+
+PRIMA DEL LANCIO
+- Compila i dati del titolare in privacy.html.
+- Servono Termini e Condizioni del servizio di intermediazione e verifica,
+  da far redigere a un professionista.

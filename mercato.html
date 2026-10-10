@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mercato - Swappr</title>
+<link rel="stylesheet" href="swappr.css">
+</head>
+<body>
+<main>
+  <h1>Mercato</h1>
+  <p class="lead">Compra e vendi carte collezionabili: ogni acquisto passa da Swappr, che verifica le condizioni prima di inoltrare la carta.</p>
+  <div class="notice">Anteprima: gli annunci degli altri venditori sono dimostrativi, con prezzi indicativi, e le tue inserzioni restano su questo dispositivo. Pagamenti e verifica reali partiranno con la Beta. <a href="verifica.html">Come funziona la verifica</a></div>
+  <section class="panel"><h2>Filtri</h2>
+    <div class="form-grid">
+      <div class="field"><label for="f-q">Cerca</label><input id="f-q" type="search" maxlength="60"></div>
+      <div class="field"><label for="f-game">Gioco</label><select id="f-game"></select></div>
+      <div class="field"><label for="f-cond">Condizioni</label><select id="f-cond"></select></div>
+      <div class="field"><label for="f-max">Prezzo massimo (€)</label><input id="f-max" type="number" min="0" step="1"></div>
+      <div class="field"><label for="f-sort">Ordina per</label><select id="f-sort"><option value="new">Più recenti</option><option value="asc">Prezzo crescente</option><option value="desc">Prezzo decrescente</option></select></div>
+    </div>
+  </section>
+  <p class="msg" id="msg" role="status" aria-live="polite" style="margin-bottom:12px"></p>
+  <div class="grid" id="listings"></div>
+  <section class="panel" style="margin-top:28px"><h2>Metti in vendita una carta</h2>
+    <form id="sell"><div class="form-grid">
+      <div class="field wide"><label>Nome della carta<input name="n" maxlength="80" required></label></div>
+      <div class="field"><label>Gioco<select name="game" id="s-game"></select></label></div>
+      <div class="field"><label>Espansione<input name="set" maxlength="60"></label></div>
+      <div class="field"><label>Condizioni<select name="cond" id="s-cond"></select></label></div>
+      <div class="field"><label>Prezzo (€)<input name="price" type="number" min="0.01" max="99999" step="0.01" required></label></div>
+      <div class="field wide"><label>Descrizione (facoltativa)<input name="note" maxlength="140"></label></div>
+    </div><div class="actions"><button class="btn" type="submit">Metti in vendita</button></div></form>
+  </section>
+  <section class="panel"><h2>Le mie inserzioni</h2><div id="mine"></div></section>
+</main>
+<footer>© 2026 Swappr. Tutti i diritti riservati.</footer>
+<script src="swappr.js"></script>
+<script>
+const $=id=>document.getElementById(id), el=Swappr.el;
+const GAMES=['Pokémon','Magic: The Gathering','Yu-Gi-Oh!','One Piece','Lorcana','Carte sportive'], CONDS=['M','NM','EX','GD','LP','PL','PO'];
+const DEMO=[
+ {id:'d1',seller:'Marco_TCG',name:'Charizard',game:'Pokémon',set:'Base Set',cond:'EX',price:110},
+ {id:'d2',seller:'Giulia_Cards',name:'Mewtwo',game:'Pokémon',set:'Base Set',cond:'NM',price:48},
+ {id:'d3',seller:'Luca_Collector',name:'Lugia',game:'Pokémon',set:'Neo Genesis',cond:'GD',price:32},
+ {id:'d4',seller:'Sara_Swap',name:'Umbreon',game:'Pokémon',set:'Neo Discovery',cond:'NM',price:42},
+ {id:'d5',seller:'Marco_TCG',name:'Sol Ring',game:'Magic: The Gathering',set:'Commander Legends',cond:'NM',price:3.5},
+ {id:'d6',seller:'Giulia_Cards',name:'Blue-Eyes White Dragon',game:'Yu-Gi-Oh!',set:'Legend of Blue Eyes',cond:'EX',price:25},
+ {id:'d7',seller:'Luca_Collector',name:'Monkey D. Luffy',game:'One Piece',set:'Romance Dawn',cond:'NM',price:9},
+ {id:'d8',seller:'Sara_Swap',name:'Elsa - Snow Queen',game:'Lorcana',set:'The First Chapter',cond:'NM',price:6}
+];
+let mine=Swappr.get('listings',[]);
+const fill=(id,first,arr)=>{const s=$(id);s.replaceChildren();if(first){const o=el('option','',first);o.value='';s.appendChild(o);}arr.forEach(v=>s.appendChild(el('option','',v)));};
+fill('f-game','Tutti i giochi',GAMES);fill('f-cond','Tutte',CONDS);fill('s-game','',GAMES);fill('s-cond','',CONDS);$('s-cond').value='NM';
+const me=()=>(Swappr.get('user',null)||{}).username||'Tu';
+function buy(x){
+  const t=Swappr.get('trades',[]);
+  t.unshift({id:Date.now().toString(36),with:x.seller,kind:'acquisto',give:'Pagamento '+Swappr.eur(x.price),get:x.name+' ('+x.cond+')',status:'Proposta',created:Date.now(),
+    messages:[{from:'sistema',text:'Ordine creato: '+me()+' acquista '+x.name+' ('+x.cond+') da '+x.seller+' a '+Swappr.eur(x.price)+', con verifica Swappr.',t:Date.now()}]});
+  Swappr.set('trades',t);$('msg').textContent='Ordine creato con '+x.seller+'. Lo trovi in «Scambi».';
+}
+function render(){
+  const q=$('f-q').value.trim().toLowerCase(),g=$('f-game').value,c=$('f-cond').value,mx=parseFloat($('f-max').value)||Infinity,s=$('f-sort').value;
+  const L=mine.map(x=>Object.assign({mine:true},x)).concat(DEMO).filter(x=>(!q||x.name.toLowerCase().includes(q))&&(!g||x.game===g)&&(!c||x.cond===c)&&x.price<=mx);
+  if(s==='asc')L.sort((a,b)=>a.price-b.price);else if(s==='desc')L.sort((a,b)=>b.price-a.price);
+  const grid=$('listings');grid.replaceChildren();
+  if(!L.length)grid.appendChild(el('div','empty','Nessun annuncio con questi filtri.'));
+  L.forEach(x=>{
+    const card=el('article','card');card.appendChild(el('h3','',x.name));
+    const m=el('div','meta');m.appendChild(el('span','tag info',x.game));m.appendChild(el('span','tag',x.cond));if(x.set)m.appendChild(el('span','tag',x.set));card.appendChild(m);
+    if(x.note)card.appendChild(el('p','sub',x.note));
+    const p=el('strong','',Swappr.eur(x.price));p.style.fontSize='1.3rem';card.appendChild(p);
+    card.appendChild(x.mine?el('span','tag ok','Tua inserzione'):el('p','sub','Venditore: '+x.seller+' (dimostrativo)'));
+    const r=el('div','row');
+    if(!x.mine){const b=el('button','btn small','Compra con verifica');b.type='button';b.onclick=()=>buy(x);r.appendChild(b);}
+    if(x.game==='Pokémon'){const l=el('a','btn small ghost','Cardmarket ↗');l.href=Swappr.cm(x.name);l.target='_blank';l.rel='noopener noreferrer';r.appendChild(l);}
+    card.appendChild(r);grid.appendChild(card);
+  });
+  const box=$('mine');box.replaceChildren();
+  if(!mine.length)box.appendChild(el('p','sub','Non hai ancora inserzioni.'));
+  mine.forEach(x=>{
+    const row=el('div','rowline');row.appendChild(el('span','',x.name+' · '+x.cond+' · '+Swappr.eur(x.price)));
+    const d=el('button','','Rimuovi');d.type='button';d.onclick=()=>{mine=mine.filter(y=>y.id!==x.id);Swappr.set('listings',mine);render();};
+    row.appendChild(d);box.appendChild(row);
+  });
+}
+['f-q','f-game','f-cond','f-max','f-sort'].forEach(id=>$(id).addEventListener('input',render));
+$('sell').addEventListener('submit',e=>{
+  e.preventDefault();const f=e.target,price=parseFloat(f.price.value);if(!(price>0))return;
+  mine.unshift({id:'m'+Date.now().toString(36),seller:me(),name:f.n.value.trim().slice(0,80),game:f.game.value,set:f.set.value.trim().slice(0,60),cond:f.cond.value,price:Math.round(price*100)/100,note:f.note.value.trim().slice(0,140)});
+  Swappr.set('listings',mine.slice(0,100));mine=mine.slice(0,100);f.reset();$('s-cond').value='NM';render();$('msg').textContent='Inserzione pubblicata.';
+});
+render();
+</script>
+</body>
+</html>
