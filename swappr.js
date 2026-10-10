@@ -1,8 +1,10 @@
 (function(){
-var K={binder:'swappr-binder-v1',user:'swappr-user-v1',trades:'swappr-trades-v1'};
+var K={binder:'swappr-binder-v1',user:'swappr-user-v1',trades:'swappr-trades-v1',session:'swappr-session-v1',lang:'swappr-lang-v1'};
 function get(k,d){try{var r=localStorage.getItem(K[k]);return r?JSON.parse(r):d;}catch(e){return d;}}
 function set(k,v){try{localStorage.setItem(K[k],JSON.stringify(v));return true;}catch(e){return false;}}
 function el(t,c,x){var n=document.createElement(t);if(c)n.className=c;if(x!==undefined)n.textContent=x;return n;}
+var lang=get('lang','it')==='en'?'en':'it',loc=lang==='en'?'en-GB':'it-IT';
+document.documentElement.lang=lang;
 function binder(){var b=get('binder',{have:[],want:[]});return{have:b.have||[],want:b.want||[]};}
 function addCard(list,card){
   var b=binder();
@@ -11,8 +13,10 @@ function addCard(list,card){
   else{card.id=Date.now().toString(36)+Math.random().toString(36).slice(2,6);b[list].unshift(card);}
   return set('binder',b);
 }
-function eur(n){return n==null?'n.d.':n.toLocaleString('it-IT',{style:'currency',currency:'EUR'});}
-var LINKS=[['Home','index'],['Binder','binder'],['Cerca','cerca'],['Match','match'],['Scambi','scambi'],['Profilo','account']];
+function eur(n){return n==null?(lang==='en'?'n/a':'n.d.'):n.toLocaleString(loc,{style:'currency',currency:'EUR'});}
+function cm(q){return'https://www.cardmarket.com/'+lang+'/Pokemon/Products/Search?searchString='+encodeURIComponent(q||'');}
+function cmLink(c){var u=c&&c.cardmarket&&c.cardmarket.url;return(typeof u==='string'&&/^https:\/\//.test(u))?u:cm(c&&c.name);}
+var LINKS=[['Home','index'],['Binder','binder'],['Catalogo','catalogo'],['Cerca','cerca'],['Match','match'],['Scambi','scambi'],['Profilo','account']];
 function nav(){
   var h=document.querySelector('header');
   if(!h){h=el('header');var a=el('a','brand');a.href='index.html';var i=document.createElement('img');i.src='logo.png';i.alt='';i.width=36;i.height=36;a.append(i,document.createTextNode('Swappr'));h.appendChild(a);document.body.prepend(h);}
@@ -24,10 +28,15 @@ function nav(){
     var a=el('a','',l[1]==='account'&&u?'👤 '+u.username:l[0]);a.href=l[1]+'.html';
     if(l[1]===cur)a.setAttribute('aria-current','page');n.appendChild(a);
   });
+  var x=el('a','','Cardmarket ↗');x.href='https://www.cardmarket.com/'+lang+'/Pokemon';x.target='_blank';x.rel='noopener noreferrer';n.appendChild(x);
+  var b=el('button','lang-btn','🌐 '+(lang==='it'?'EN':'IT'));b.type='button';b.setAttribute('aria-label','Cambia lingua');
+  b.onclick=function(){set('lang',lang==='it'?'en':'it');location.reload();};
+  n.appendChild(b);
 }
 var st=document.createElement('style');
-st.textContent='header{display:flex;align-items:center;justify-content:space-between;gap:10px 20px;flex-wrap:wrap;padding:14px 20px;border-bottom:1px solid #1e293b;width:100%;text-align:left}header .brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:#f8fafc;font-weight:800;font-size:1.2rem}header .brand img{width:36px;height:36px}header nav{display:flex;flex-wrap:wrap;gap:6px 16px}header nav a{color:#38bdf8;text-decoration:none;font-size:.95rem;padding:4px 2px;border-bottom:2px solid transparent}header nav a[aria-current]{color:#f8fafc;font-weight:700;border-bottom-color:#38bdf8}';
+st.textContent='header{display:flex;align-items:center;justify-content:space-between;gap:10px 20px;flex-wrap:wrap;padding:14px 20px;border-bottom:1px solid #1e293b;width:100%;text-align:left}header .brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:#f8fafc;font-weight:800;font-size:1.2rem}header .brand img{width:36px;height:36px}header nav{display:flex;flex-wrap:wrap;align-items:center;gap:6px 16px}header nav a{color:#38bdf8;text-decoration:none;font-size:.95rem;padding:4px 2px;border-bottom:2px solid transparent}header nav a[aria-current]{color:#f8fafc;font-weight:700;border-bottom-color:#38bdf8}header .lang-btn{background:transparent;border:1px solid #334155;color:#cbd5e1;border-radius:20px;padding:3px 10px;font-size:.85rem;font-weight:500;width:auto;cursor:pointer}header .lang-btn:hover{background:#1e293b}';
 document.head.appendChild(st);
-window.Swappr={get:get,set:set,el:el,binder:binder,addCard:addCard,eur:eur,nav:nav};
+window.Swappr={get:get,set:set,el:el,binder:binder,addCard:addCard,eur:eur,nav:nav,cm:cm,cmLink:cmLink,lang:lang,loc:loc,t:function(s){return s;}};
 nav();
+if(lang==='en'){var s=document.createElement('script');s.src='swappr-i18n.js';document.body.appendChild(s);}
 })();

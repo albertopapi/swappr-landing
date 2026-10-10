@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Catalogo Pokémon - Swappr</title>
+<link rel="stylesheet" href="swappr.css">
+</head>
+<body>
+<main>
+  <h1>Catalogo Pokémon</h1>
+  <p class="lead">Sfoglia tutte le espansioni e le carte Pokémon, segna quelle che hai e controlla il prezzo su Cardmarket.</p>
+  <div class="notice">Dati dalla Pokémon TCG API: l'elenco si carica in tempo reale e dipende dalla disponibilità del servizio.</div>
+  <section class="panel">
+    <form id="form">
+      <div class="form-grid">
+        <div class="field"><label for="set">Espansione</label><select id="set"><option value="">Caricamento…</option></select></div>
+        <div class="field"><label for="name">Filtra per nome</label><input id="name" type="search" maxlength="40"></div>
+      </div>
+      <div class="actions"><button class="btn" type="submit">Mostra carte</button><span class="msg" id="msg" role="status" aria-live="polite"></span></div>
+    </form>
+  </section>
+  <p class="sub" id="prog" style="margin-bottom:14px" hidden></p>
+  <div class="grid" id="cards"></div>
+  <div class="actions" id="pager" hidden style="justify-content:center">
+    <button class="btn ghost small" id="prev" type="button">← Precedente</button>
+    <span class="msg" id="page"></span>
+    <button class="btn ghost small" id="next" type="button">Successiva →</button>
+  </div>
+</main>
+<footer>© 2026 Swappr. Tutti i diritti riservati.</footer>
+<script src="swappr.js"></script>
+<script>
+const $=id=>document.getElementById(id), el=Swappr.el, API='https://api.pokemontcg.io/v2/', SIZE=24;
+let sets=[], page=1, total=0, cur=null, last=[];
+const api=async p=>{const r=await fetch(API+p);if(!r.ok)throw new Error(r.status);return r.json();};
+const note=t=>$('cards').replaceChildren(el('div','empty',t));
+const priceOf=c=>c.cardmarket&&c.cardmarket.prices&&c.cardmarket.prices.averageSellPrice||null;
+
+async function loadSets(){
+  const sel=$('set');
+  try{
+    sets=(await api('sets?orderBy=-releaseDate&select=id,name,series,total,releaseDate')).data||[];
+    sel.replaceChildren();
+    const groups=new Map();
+    sets.forEach(s=>{
+      if(!groups.has(s.series)){const g=document.createElement('optgroup');g.label=s.series;groups.set(s.series,g);sel.appendChild(g);}
+      const o=el('option','',s.name+' ('+s.total+')');o.value=s.id;groups.get(s.series).appendChild(o);
+    });
+    load();
+  }catch(e){
+    sel.replaceChildren(el('option','','Servizio non disponibile'));
+    note('Non riesco a contattare il servizio carte in questo momento. Riprova tra poco.');
+  }
+}
+async function load(){
+  const id=$('set').value;if(!id)return;
+  cur=sets.find(s=>s.id===id);
+  const n=$('name').value.trim().replace(/["\\]/g,'');
+  note('Caricamento…');
+  try{
+    const q='set.id:'+id+(n?' name:"'+n+'*"':'');
+    const j=await api('cards?page='+page+'&pageSize='+SIZE+'&orderBy=number&select=id,name,number,rarity,set,images,cardmarket&q='+encodeURIComponent(q));
+    total=j.totalCount||0;last=j.data||[];render();pager();
+  }catch(e){note('Non riesco a contattare il servizio carte in questo momento. Riprova tra poco.');}
+}
+function add(c,list){
+  const p=priceOf(c);
+  const ok=Swappr.addCard(list,{name:c.name,game:'Pokémon',set:cur?cur.name:'',rarity:c.rarity||'',cond:'NM',qty:1,price:p?Math.round(p*100)/100:null});
+  $('msg').textContent=ok?'“'+c.name+'” aggiunta a '+(list==='have'?'«Carte che ho»':'«Carte che cerco»')+'.':'Impossibile salvare: controlla le impostazioni del browser.';
+  render();
+}
+function render(){
+  const g=$('cards');g.replaceChildren();
+  const own=new Set(Swappr.binder().have.filter(c=>cur&&c.set===cur.name).map(c=>c.name.toLowerCase()));
+  $('prog').hidden=!cur;
+  if(cur)$('prog').textContent='Nel tuo binder: '+own.size+' carte di questa espansione su '+cur.total;
+  if(!last.length){note('Nessuna carta trovata per questa ricerca.');return;}
+  last.forEach(c=>{
+    const card=el('article','card');
+    if(c.images&&c.images.small){const i=document.createElement('img');i.src=c.images.small;i.alt=c.name;i.loading='lazy';card.appendChild(i);}
+    card.appendChild(el('h3','',c.name));
+    const m=el('div','meta');m.appendChild(el('span','tag info','#'+c.number));
+    if(c.rarity)m.appendChild(el('span','tag',c.rarity));
+    if(own.has(c.name.toLowerCase()))m.appendChild(el('span','tag ok',"✓ Ce l'hai"));
+    card.appendChild(m);
+    const p=priceOf(c);
+    card.appendChild(el('p','sub',p?'Prezzo medio: '+Swappr.eur(p):'Prezzo non disponibile'));
+    const r=el('div','row');
+    const a=el('button','btn small','Ho questa');a.type='button';a.onclick=()=>add(c,'have');
+    const b=el('button','btn small ghost','La cerco');b.type='button';b.onclick=()=>add(c,'want');
+    const l=el('a','btn small ghost','Cardmarket ↗');l.href=Swappr.cmLink(c);l.target='_blank';l.rel='noopener noreferrer';
+    r.append(a,b,l);card.appendChild(r);g.appendChild(card);
+  });
+}
+function pager(){
+  const pages=Math.max(1,Math.ceil(total/SIZE));
+  $('pager').hidden=total<=SIZE;
+  $('page').textContent='Pagina '+page+' di '+pages;
+  $('prev').disabled=page<=1;$('next').disabled=page>=pages;
+}
+$('form').addEventListener('submit',e=>{e.preventDefault();page=1;load();});
+$('set').addEventListener('change',()=>{page=1;load();});
+$('prev').addEventListener('click',()=>{page--;load();});
+$('next').addEventListener('click',()=>{page++;load();});
+loadSets();
+</script>
+</body>
+</html>

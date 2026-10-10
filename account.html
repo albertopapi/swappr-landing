@@ -4,16 +4,18 @@
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Profilo - Swappr</title>
 <link rel="stylesheet" href="swappr.css">
+<script src="swappr-config.js"></script>
 </head>
 <body>
 <main>
   <h1>Il tuo profilo</h1>
   <p class="lead">Crea il tuo profilo da collezionista: è il nome con cui comparirai negli scambi.</p>
-  <div class="notice">Anteprima: il profilo è salvato solo su questo dispositivo, senza password. Il vero login con account e sincronizzazione arriverà con il database.</div>
+  <div class="notice" id="notice"></div>
 
   <section id="view" class="panel" hidden>
     <h2 id="p-name"></h2>
-    <p class="sub" id="p-info"></p>
+    <p class="sub" id="p-meta"></p>
+    <p class="sub" id="p-game"></p>
     <div class="stats" style="margin-top:16px">
       <div class="stat"><strong id="s-have">0</strong><span>Carte che ho</span></div>
       <div class="stat"><strong id="s-want">0</strong><span>Carte che cerco</span></div>
@@ -21,59 +23,129 @@
     </div>
     <div class="actions">
       <button class="btn" id="edit" type="button">Modifica profilo</button>
-      <button class="btn danger" id="logout" type="button">Elimina profilo locale</button>
+      <button class="btn danger" id="logout" type="button">Esci</button>
     </div>
   </section>
 
   <section id="formwrap" class="panel">
+    <div class="tabs" id="tabs" hidden>
+      <button class="tab" id="tab-signup" type="button">Registrati</button>
+      <button class="tab" id="tab-login" type="button">Accedi</button>
+    </div>
     <h2 id="form-title">Crea il profilo</h2>
     <form id="form">
       <div class="form-grid">
-        <div class="field"><label for="username">Nome utente</label><input id="username" maxlength="20" minlength="3" required placeholder="Es. Marco_TCG"></div>
-        <div class="field"><label for="city">Città (facoltativa)</label><input id="city" maxlength="40"></div>
-        <div class="field"><label for="game">Gioco principale</label>
+        <div class="field" data-remote><label for="email">Email</label><input id="email" type="email" autocomplete="email"></div>
+        <div class="field" data-remote><label for="password">Password</label><input id="password" type="password" minlength="8" autocomplete="new-password"></div>
+        <div class="field" data-profile><label for="username">Nome utente</label><input id="username" maxlength="20" placeholder="Marco_TCG"></div>
+        <div class="field" data-profile><label for="city">Città (facoltativa)</label><input id="city" maxlength="40"></div>
+        <div class="field" data-profile><label for="game">Gioco principale</label>
           <select id="game"><option>Pokémon</option><option>Magic: The Gathering</option><option>Yu-Gi-Oh!</option><option>One Piece</option><option>Lorcana</option><option>Carte sportive</option></select></div>
       </div>
-      <div class="actions"><button class="btn" type="submit">Salva profilo</button><span class="msg" id="msg" role="status"></span></div>
+      <div class="actions"><button class="btn" id="submit" type="submit">Salva profilo</button><span class="msg" id="msg" role="status" aria-live="polite"></span></div>
     </form>
   </section>
 </main>
 <footer>© 2026 Swappr. Tutti i diritti riservati.</footer>
 <script src="swappr.js"></script>
 <script>
-const $=id=>document.getElementById(id);
+const C=window.SWAPPR_CONFIG||{}, REMOTE=!!(C.SUPABASE_URL&&C.SUPABASE_ANON_KEY), $=id=>document.getElementById(id);
+let mode=REMOTE?'signup':'local';
+const sess=()=>Swappr.get('session',null);
+
+async function api(path,method,body,token){
+  const h={'apikey':C.SUPABASE_ANON_KEY,'Content-Type':'application/json'};
+  if(token)h.Authorization='Bearer '+token;
+  const r=await fetch(C.SUPABASE_URL.replace(/\/$/,'')+'/auth/v1/'+path,{method,headers:h,body:body?JSON.stringify(body):undefined});
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok)throw new Error(j.msg||j.error_description||j.message||('Error '+r.status));
+  return j;
+}
+const saveSession=j=>Swappr.set('session',{access_token:j.access_token,refresh_token:j.refresh_token});
+function applyUser(u){
+  const md=u.user_metadata||{};
+  Swappr.set('user',{username:md.username||(u.email||'user').split('@')[0],city:md.city||'',game:md.game||'Pokémon',email:u.email,remote:true});
+}
+async function restore(){
+  const s=sess();if(!s||!REMOTE)return;
+  try{applyUser(await api('user','GET',null,s.access_token));}
+  catch(e){
+    try{const j=await api('token?grant_type=refresh_token','POST',{refresh_token:s.refresh_token});saveSession(j);applyUser(j.user);}
+    catch(e2){Swappr.set('session',null);Swappr.set('user',null);}
+  }
+}
+function setMode(m){
+  mode=m;
+  const rem=REMOTE&&m!=='edit';
+  document.querySelectorAll('[data-remote]').forEach(e=>e.hidden=!rem);
+  document.querySelectorAll('[data-profile]').forEach(e=>e.hidden=(m==='login'));
+  $('email').required=$('password').required=rem;
+  $('username').required=(m!=='login');
+  $('tabs').hidden=!(REMOTE&&(m==='signup'||m==='login'));
+  $('tab-signup').setAttribute('aria-selected',String(m==='signup'));
+  $('tab-login').setAttribute('aria-selected',String(m==='login'));
+  $('submit').textContent=m==='signup'?'Registrati':m==='login'?'Accedi':'Salva profilo';
+  $('form-title').textContent=m==='signup'?'Crea il tuo account':m==='login'?'Accedi al tuo account':m==='edit'?'Modifica il profilo':'Crea il profilo';
+  $('password').autocomplete=m==='login'?'current-password':'new-password';
+  $('msg').textContent='';
+}
 function show(){
   const u=Swappr.get('user',null);
-  $('view').hidden=!u; $('formwrap').hidden=!!u;
-  if(!u)return;
+  $('notice').textContent=REMOTE?"Accedi o crea un account: i dati dell'account sono gestiti da Supabase.":'Modalità anteprima: il profilo è salvato solo su questo dispositivo, senza password. Per attivare i veri account compila swappr-config.js con i dati di Supabase.';
+  $('view').hidden=!u;$('formwrap').hidden=!!u;
+  if(!u){setMode(REMOTE?'signup':'local');Swappr.nav();return;}
   $('p-name').textContent='👤 '+u.username;
-  $('p-info').textContent=[u.city,'Gioco principale: '+u.game].filter(Boolean).join(' · ');
+  $('p-meta').textContent=[u.email,u.city].filter(Boolean).join(' · ');
+  $('p-game').textContent='Gioco principale: '+u.game;
   const b=Swappr.binder();
   $('s-have').textContent=b.have.reduce((s,c)=>s+c.qty,0);
   $('s-want').textContent=b.want.reduce((s,c)=>s+c.qty,0);
   $('s-trades').textContent=Swappr.get('trades',[]).length;
+  $('logout').textContent=u.remote?'Esci':'Elimina profilo locale';
   Swappr.nav();
 }
-$('form').addEventListener('submit',e=>{
-  e.preventDefault();
-  const username=$('username').value.trim().replace(/\s+/g,'_');
-  if(username.length<3)return;
-  const old=Swappr.get('user',null);
-  Swappr.set('user',{username,city:$('city').value.trim(),game:$('game').value,created:old?old.created:Date.now()});
-  show();
+$('tab-signup').onclick=()=>setMode('signup');
+$('tab-login').onclick=()=>setMode('login');
+$('form').addEventListener('submit',async e=>{
+  e.preventDefault();$('msg').textContent='';
+  const prof={username:$('username').value.trim().replace(/\s+/g,'_'),city:$('city').value.trim(),game:$('game').value};
+  const creds={email:$('email').value.trim(),password:$('password').value};
+  try{
+    if(mode==='login'){
+      const j=await api('token?grant_type=password','POST',creds);
+      saveSession(j);applyUser(j.user);show();return;
+    }
+    if(prof.username.length<3){$('msg').textContent='Il nome utente deve avere almeno 3 caratteri.';return;}
+    if(mode==='local'){
+      const old=Swappr.get('user',null);
+      Swappr.set('user',Object.assign({created:(old&&old.created)||Date.now()},prof));show();
+    }else if(mode==='edit'){
+      applyUser(await api('user','PUT',{data:prof},sess().access_token));show();
+    }else{
+      const j=await api('signup','POST',Object.assign({data:prof},creds));
+      if(j.access_token){saveSession(j);applyUser(j.user||j);show();}
+      else $('msg').textContent="Controlla la tua email per confermare l'account, poi accedi.";
+    }
+  }catch(err){$('msg').textContent=err.message;}
 });
 $('edit').addEventListener('click',()=>{
-  const u=Swappr.get('user',null); if(!u)return;
+  const u=Swappr.get('user',null);if(!u)return;
   $('username').value=u.username;$('city').value=u.city||'';$('game').value=u.game;
-  $('form-title').textContent='Modifica il profilo';
+  setMode(u.remote?'edit':'local');
   $('view').hidden=true;$('formwrap').hidden=false;
 });
-$('logout').addEventListener('click',()=>{
-  if(!confirm('Eliminare il profilo da questo dispositivo? Binder e scambi restano salvati.'))return;
-  try{localStorage.removeItem('swappr-user-v1');}catch(e){}
-  $('form').reset();$('form-title').textContent='Crea il profilo';show();
+$('logout').addEventListener('click',async()=>{
+  const u=Swappr.get('user',null);
+  if(u&&u.remote){
+    const s=sess();try{if(s)await api('logout','POST',null,s.access_token);}catch(e){}
+    Swappr.set('session',null);Swappr.set('user',null);
+  }else{
+    if(!confirm(Swappr.t('Eliminare il profilo da questo dispositivo? Binder e scambi restano salvati.')))return;
+    try{localStorage.removeItem('swappr-user-v1');}catch(e){}
+  }
+  $('form').reset();show();
 });
-show();
+(async()=>{if(REMOTE)await restore();show();})();
 </script>
 </body>
 </html>

@@ -23,7 +23,7 @@ const FLOW=['Proposta','Accettato','Spedito','Completato'];
 let trades=Swappr.get('trades',[]), sel=trades.length?trades[0].id:null;
 const me=()=>(Swappr.get('user',null)||{}).username||'Tu';
 const save=()=>Swappr.set('trades',trades);
-const fmt=t=>new Date(t).toLocaleString('it-IT',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+const fmt=t=>new Date(t).toLocaleString(Swappr.loc,{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
 function addMsg(t,from,text){t.messages.push({from,text,t:Date.now()});save();}
 function renderList(){
   const l=$('list');l.replaceChildren();
@@ -55,7 +55,7 @@ function renderDetail(){
     const n=el('button','btn small','Segna come: '+next);n.type='button';
     n.onclick=()=>{t.status=next;addMsg(t,'sistema','Stato aggiornato: '+next+'.');render();};
     const c=el('button','btn small danger','Annulla scambio');c.type='button';
-    c.onclick=()=>{if(confirm('Annullare questo scambio?')){t.status='Annullato';addMsg(t,'sistema','Scambio annullato.');render();}};
+    c.onclick=()=>{if(confirm(Swappr.t('Annullare questo scambio?'))){t.status='Annullato';addMsg(t,'sistema','Scambio annullato.');render();}};
     r.append(n,c);d.appendChild(r);
   }
   const chat=el('div','chat');chat.setAttribute('role','log');

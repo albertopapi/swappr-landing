@@ -53,7 +53,8 @@ function render(cards){
     const r=el('div','row');
     const a=el('button','btn small','Ho questa');a.type='button';a.onclick=()=>add(c,'have');
     const b=el('button','btn small ghost','La cerco');b.type='button';b.onclick=()=>add(c,'want');
-    r.append(a,b);card.appendChild(r);g.appendChild(card);
+    const l=el('a','btn small ghost','Cardmarket ↗');l.href=Swappr.cmLink(c);l.target='_blank';l.rel='noopener noreferrer';
+    r.append(a,b,l);card.appendChild(r);g.appendChild(card);
   });
 }
 $('form').addEventListener('submit',async e=>{
