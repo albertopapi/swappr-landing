@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Impostazioni - Swappr</title>
+<link rel="stylesheet" href="swappr.css">
+</head>
+<body>
+<main id="app"></main>
+<script src="swappr.js"></script>
+<script>
+const S=Swappr,el=S.el,app=document.getElementById('app');
+app.appendChild(el('h1','','Impostazioni'));
+app.appendChild(el('h2','sec','Lingua'));
+const tabs=el('div','tabs');
+[['it','Italiano'],['en','English']].forEach(([l,n])=>{const b=el('button','tab',n);b.type='button';b.setAttribute('aria-selected',String(S.lang===l));b.onclick=()=>{if(S.lang!==l)S.setLang(l);};tabs.appendChild(b);});
+app.appendChild(tabs);
+app.appendChild(el('h2','sec','Informazioni'));
+[['Come funziona la verifica','verifica.html'],['Guida alle condizioni','guida.html'],['Informativa privacy','privacy.html'],['Iscriviti alla Beta','beta.html'],['Cardmarket ↗','https://www.cardmarket.com/'+S.lang+'/Pokemon']].forEach(([t,h])=>{
+  const a=el('a','item',t);a.href=h;if(h.startsWith('https')){a.target='_blank';a.rel='noopener noreferrer';}app.appendChild(a);
+});
+app.appendChild(el('h2','sec','Dati'));
+app.appendChild(el('p','sub','I tuoi binder, la wishlist, gli scambi e i messaggi sono salvati solo su questo dispositivo: fai ogni tanto un backup.'));
+const msg=el('p','msg');msg.setAttribute('role','status');msg.setAttribute('aria-live','polite');msg.style.margin='8px 0';
+const row=el('div','row');row.style.marginTop='10px';
+const mk=(t,fn,cls)=>{const b=el('button','btn small'+(cls?' '+cls:''),t);b.type='button';b.onclick=fn;return b;};
+const imp=document.createElement('input');imp.type='file';imp.accept='.json,application/json';imp.hidden=true;
+imp.onchange=e=>{
+  const f=e.target.files[0];e.target.value='';if(!f)return;
+  if(f.size>5e6){msg.textContent='File non valido: scegli un backup scaricato da Swappr.';return;}
+  const r=new FileReader();
+  r.onload=()=>{try{
+    const o=JSON.parse(r.result);if(!o||o.app!=='swappr')throw 0;
+    if(!confirm(S.t('Sostituire i dati attuali con quelli del backup?')))return;
+    S.importAll(o);msg.textContent='Backup importato.';
+  }catch(err){msg.textContent='File non valido: scegli un backup scaricato da Swappr.';}};
+  r.readAsText(f);
+};
+row.append(
+  mk('Scarica backup (JSON)',()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(S.exportAll(),null,2)],{type:'application/json'}));a.download='swappr-backup.json';document.body.appendChild(a);a.click();a.remove();msg.textContent='Backup scaricato.';}),
+  mk('Importa backup',()=>imp.click(),'ghost'),
+  mk('Cancella tutti i dati locali',()=>{if(!confirm(S.t('Cancellare binder, wishlist, scambi e messaggi da questo dispositivo? Non si può annullare.')))return;S.wipe();msg.textContent='Dati locali cancellati.';},'danger'));
+app.append(row,msg,imp);
+</script>
+</body>
+</html>

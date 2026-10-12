@@ -1,26 +1,36 @@
-SWAPPR - SITO COMPLETO
-======================
+SWAPPR - NUOVO SITO (app in stile mobile)
+=========================================
 
-Questo archivio contiene TUTTI i file del sito (vecchi e nuovi).
-Il file logo.png NON e' incluso: e' il tuo, lascialo nella cartella.
+Questo archivio contiene TUTTI i file del sito. logo.png non e' incluso: e' il tuo, lascialo dov'e'.
 
 COME PUBBLICARLO
 1. Estrai lo zip (tasto destro > Estrai tutto).
-2. Apri la cartella estratta e seleziona tutti i file (Ctrl+A), poi Ctrl+C.
-3. Apri Desktop\swappr-landing e premi Ctrl+V.
-4. Quando Windows lo chiede, scegli "Sostituisci i file nella destinazione".
-   Non toccare logo.png e la cartella nascosta .git.
-5. Nel terminale, dentro swappr-landing:
-      git add .
-      git commit -m "Swappr: intermediazione, mercato, verifica"
+2. Apri Desktop\swappr-landing e CANCELLA tutti i file tranne:
+      logo.png
+      la cartella nascosta .git   (non toccarla mai)
+   Cosi' spariscono le vecchie pagine (catalogo, cerca, match, mercato, calcolatore, dashboard, account...).
+3. Copia tutti i file della cartella estratta (Ctrl+A, Ctrl+C) e incollali in swappr-landing (Ctrl+V).
+4. Nel terminale, dentro swappr-landing:
+      git add -A
+      git commit -m "Swappr: nuova app"
       git push
-6. Vercel pubblica da solo in uno o due minuti.
+5. Vercel pubblica da solo in uno o due minuti.
 
-PER ATTIVARE GLI ACCOUNT VERI
-Apri swappr-config.js e inserisci "Project URL" e "anon public key" del tuo
-progetto Supabase (Project Settings > API). Mai la chiave service_role.
+STRUTTURA
+- index.html        Cerca (home): ultime uscite, piu' ricercate, tutte le carte, ricerca e filtri
+- binder.html       I tuoi binder e quelli degli altri
+- wishlist.html     La tua wishlist e quelle degli altri
+- scambi.html       Match e scambi con verifica Swappr
+- messaggi.html     Notifiche e messaggi
+- profilo.html      Profilo, accesso e registrazione
+- impostazioni.html Lingua, informazioni, backup
+- beta.html         Pagina con la lista d'attesa (la vecchia home)
+- verifica.html, guida.html, privacy.html
+
+ACCOUNT VERI
+Apri swappr-config.js e inserisci "Project URL" e "anon public key" del tuo progetto Supabase
+(Project Settings > API). Mai la chiave service_role.
 
 PRIMA DEL LANCIO
 - Compila i dati del titolare in privacy.html.
-- Servono Termini e Condizioni del servizio di intermediazione e verifica,
-  da far redigere a un professionista.
+- Servono Termini e Condizioni del servizio di verifica e intermediazione (da far redigere a un professionista).

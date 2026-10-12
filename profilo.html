@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Profilo - Swappr</title>
+<link rel="stylesheet" href="swappr.css">
+</head>
+<body>
+<main id="app"></main>
+<script src="swappr-config.js"></script>
+<script src="swappr.js"></script>
+<script>
+const S=Swappr,el=S.el,P=new URLSearchParams(location.search),app=document.getElementById('app');
+const C=window.SWAPPR_CONFIG||{},REMOTE=!!(C.SUPABASE_URL&&C.SUPABASE_ANON_KEY),who=P.get('u');
+const btn=(t,fn,cls)=>{const x=el('button','btn small'+(cls?' '+cls:''),t);x.type='button';x.onclick=fn;return x;};
+const stat=(n,l)=>{const s=el('span','sub');s.appendChild(el('b','',String(n)));s.append(' ');s.appendChild(el('span','',l));return s;};
+function head(name,extra){
+  const h=el('div','phead');h.appendChild(el('div','av big',name[0].toUpperCase()));
+  const t=el('div');t.appendChild(el('h1','',name));if(extra)t.appendChild(extra);h.appendChild(t);app.appendChild(h);
+}
+function rail(title,items){
+  app.appendChild(el('h2','sec',title));const r=el('div','rail');
+  items.forEach(i=>{const a=el('a','bind');a.href=i[2];const c=el('div','cover'),ic=el('span','ic');ic.innerHTML=S.IC.book;c.append(ic,el('span','cnt',String(i[1])));a.append(c,el('span','bn',i[0]));r.appendChild(a);});
+  if(!items.length)r.appendChild(el('p','sub','—'));app.appendChild(r);
+}
+function wishGrid(title,cards,opt){
+  app.appendChild(el('h2','sec',title));const g=el('div','cards');
+  cards.forEach(c=>g.appendChild(S.tile(c,opt)));if(!cards.length)g.appendChild(el('div','empty','—'));app.appendChild(g);
+}
+/* --- account (Supabase se configurato, altrimenti profilo locale) --- */
+async function api(path,method,body,token){
+  const h={apikey:C.SUPABASE_ANON_KEY,'Content-Type':'application/json'};if(token)h.Authorization='Bearer '+token;
+  const r=await fetch(C.SUPABASE_URL.replace(/\/$/,'')+'/auth/v1/'+path,{method,headers:h,body:body?JSON.stringify(body):undefined});
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok)throw new Error(j.msg||j.error_description||j.message||('Error '+r.status));
+  return j;
+}
+const sess=()=>S.get('session',null);
+const saveSession=j=>S.set('session',{access_token:j.access_token,refresh_token:j.refresh_token});
+function applyUser(u){const md=u.user_metadata||{};S.set('user',{username:md.username||(u.email||'user').split('@')[0],city:md.city||'',email:u.email,remote:true});}
+async function restore(){
+  const s=sess();if(!s||!REMOTE)return;
+  try{applyUser(await api('user','GET',null,s.access_token));}
+  catch(e){try{const j=await api('token?grant_type=refresh_token','POST',{refresh_token:s.refresh_token});saveSession(j);applyUser(j.user);}catch(e2){S.set('session',null);S.set('user',null);}}
+}
+function auth(){
+  app.appendChild(el('h1','','Il tuo profilo'));
+  app.appendChild(el('p','lead','Crea il tuo profilo da collezionista: è il nome con cui comparirai negli scambi.'));
+  app.appendChild(el('div','notice',REMOTE?"Accedi o crea un account: i dati dell'account sono gestiti da Supabase.":'Modalità anteprima: il profilo è salvato solo su questo dispositivo, senza password. Per attivare i veri account compila swappr-config.js con i dati di Supabase.'));
+  const w=el('section','panel');
+  w.innerHTML='<div class="tabs" id="tabs" hidden><button class="tab" id="t-s" type="button">Registrati</button><button class="tab" id="t-l" type="button">Accedi</button></div><form id="f"><div class="form-grid"><div class="field" data-r><label for="email">Email</label><input id="email" type="email" autocomplete="email"></div><div class="field" data-r><label for="pw">Password</label><input id="pw" type="password" minlength="8" autocomplete="new-password"></div><div class="field" data-p><label for="un">Nome utente</label><input id="un" maxlength="20"></div><div class="field" data-p><label for="ct">Città (facoltativa)</label><input id="ct" maxlength="40"></div></div><div class="actions"><button class="btn" id="go" type="submit">Crea il profilo</button><span class="msg" id="msg" role="status" aria-live="polite"></span></div></form>';
+  app.appendChild(w);
+  const $=id=>w.querySelector('#'+id);let mode=REMOTE?'signup':'local';
+  function setMode(m){
+    mode=m;w.querySelectorAll('[data-r]').forEach(e=>e.hidden=!REMOTE);w.querySelectorAll('[data-p]').forEach(e=>e.hidden=(m==='login'));
+    $('email').required=$('pw').required=REMOTE;$('un').required=(m!=='login');$('tabs').hidden=!REMOTE;
+    $('t-s').setAttribute('aria-selected',String(m==='signup'));$('t-l').setAttribute('aria-selected',String(m==='login'));
+    $('go').textContent=m==='signup'?'Registrati':m==='login'?'Accedi':'Crea il profilo';$('msg').textContent='';
+  }
+  setMode(mode);$('t-s').onclick=()=>setMode('signup');$('t-l').onclick=()=>setMode('login');
+  $('f').onsubmit=async e=>{
+    e.preventDefault();$('msg').textContent='';
+    const un=$('un').value.trim().replace(/\s+/g,'_'),ct=$('ct').value.trim(),creds={email:$('email').value.trim(),password:$('pw').value};
+    try{
+      if(mode==='login'){const j=await api('token?grant_type=password','POST',creds);saveSession(j);applyUser(j.user);location.reload();return;}
+      if(un.length<3){$('msg').textContent='Il nome utente deve avere almeno 3 caratteri.';return;}
+      if(mode==='local'){S.set('user',{username:un,city:ct,created:Date.now()});location.reload();return;}
+      const j=await api('signup','POST',Object.assign({data:{username:un,city:ct}},creds));
+      if(j.access_token){saveSession(j);applyUser(j.user||j);location.reload();}else $('msg').textContent="Controlla la tua email per confermare l'account, poi accedi.";
+    }catch(err){$('msg').textContent=err.message;}
+  };
+}
+async function edit(){
+  const me=S.me(),n=prompt(S.t('Nome utente'),me.username);if(!n||n.trim().replace(/\s+/g,'_').length<3)return;
+  const c=prompt(S.t('Città (facoltativa)'),me.city||'')||'',data={username:n.trim().replace(/\s+/g,'_').slice(0,20),city:c.trim().slice(0,40)};
+  try{if(me.remote&&sess())applyUser(await api('user','PUT',{data},sess().access_token));else S.set('user',Object.assign({},me,data));}catch(e){alert(e.message);return;}
+  location.reload();
+}
+async function logout(){
+  const me=S.me();
+  if(me.remote){const s=sess();try{if(s)await api('logout','POST',null,s.access_token);}catch(e){}S.set('session',null);S.set('user',null);}
+  else{if(!confirm(S.t('Eliminare il profilo da questo dispositivo? Binder e scambi restano salvati.')))return;try{localStorage.removeItem('swappr-user-v1');}catch(e){}}
+  location.reload();
+}
+function mine(){
+  const me=S.me();if(!me)return auth();
+  const st=el('div','row');st.style.gap='18px';st.append(stat(0,'Follower'),stat(S.follows().length,'Segui'));
+  head(me.username,st);
+  if(me.city)app.appendChild(el('p','sub',me.city));
+  const act=el('div','row');act.style.margin='12px 0';
+  act.append(btn('Modifica profilo',edit,'ghost'),btn(me.remote?'Esci':'Elimina profilo locale',logout,'danger'));app.appendChild(act);
+  rail('I miei binder',S.binders().map(b=>[b.name,b.cards.reduce((s,e)=>s+e.qty,0),'binder.html?b='+b.id]));
+  wishGrid('La mia wishlist',S.wish(),{onWish:()=>location.reload()});
+}
+async function demo(u){
+  head(u.u,el('span','tag info','Utente dimostrativo'));
+  const f=S.follows().includes(u.u),act=el('div','row');act.style.margin='12px 0';
+  act.append(btn(f?'Non seguire più':'Inizia a seguire',()=>{S.toggleFollow(u.u);location.reload();},f?'ghost':''));
+  const m=el('a','btn small ghost','Scrivi');m.href='messaggi.html?c='+encodeURIComponent(u.u);act.appendChild(m);app.appendChild(act);
+  rail('Binder',u.b.map((b,i)=>[b[0],b[1].length,'binder.html?u='+encodeURIComponent(u.u)+'&b='+i]));
+  let mp={};try{mp=await S.byIds(u.w);}catch(e){}
+  wishGrid('Wishlist',u.w.map(id=>mp[id]).filter(Boolean));
+}
+(async()=>{
+  const d=who&&S.DEMO.find(x=>x.u===who);
+  if(d)return demo(d);
+  if(REMOTE)await restore();mine();
+})();
+</script>
+</body>
+</html>

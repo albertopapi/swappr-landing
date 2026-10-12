@@ -1,82 +1,83 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Scambi - Swappr</title>
 <link rel="stylesheet" href="swappr.css">
 </head>
 <body>
-<main>
-  <h1>I tuoi scambi</h1>
-  <p class="lead">Ogni scambio passa da Swappr: segui lo stato, dalla proposta alla verifica fino alla consegna, e usa la chat per accordarti.</p>
-  <div class="notice">Anteprima: stati e chat sono simulati e restano su questo dispositivo. Con la Beta gli stati saranno aggiornati da Swappr in base ai controlli reali e i messaggi arriveranno davvero all'altra persona.</div>
-  <div class="layout">
-    <aside id="list" aria-label="Elenco scambi"></aside>
-    <section id="detail" class="panel" aria-live="polite"></section>
-  </div>
-</main>
-<footer>© 2026 Swappr. Tutti i diritti riservati.</footer>
+<main id="app"></main>
 <script src="swappr.js"></script>
 <script>
-const $=id=>document.getElementById(id), el=Swappr.el;
-const FLOW=['Proposta','Accettato','Inviato a Swappr','In verifica','Spedito','Completato'];
-const HELP={'Proposta':"In attesa che l'altra parte accetti.",'Accettato':'Ora ognuno prepara le carte e le spedisce a Swappr con spedizione tracciata.','Inviato a Swappr':'Le carte sono in viaggio verso Swappr.','In verifica':'Controlliamo che le carte corrispondano a quanto dichiarato.','Spedito':'Verifica superata: le carte sono state inoltrate alle parti.','Completato':'Scambio concluso. Grazie!','Annullato':'Questo scambio è stato annullato.'};
-let trades=Swappr.get('trades',[]), sel=trades.length?trades[0].id:null;
-const me=()=>(Swappr.get('user',null)||{}).username||'Tu';
-const save=()=>Swappr.set('trades',trades);
-const fmt=t=>new Date(t).toLocaleString(Swappr.loc,{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
-function addMsg(t,from,text){t.messages.push({from,text,t:Date.now()});save();}
-function renderList(){
-  const l=$('list');l.replaceChildren();
-  if(!trades.length){l.appendChild(el('div','empty','Nessuno scambio.'));
-    const a=el('a','btn small','Vai ai Match');a.href='match.html';a.style.display='inline-block';a.style.marginTop='10px';l.firstChild.appendChild(document.createElement('br'));l.firstChild.appendChild(a);return;}
-  trades.forEach(t=>{
-    const b=el('button','list-item','');b.type='button';
-    b.appendChild(el('strong','',t.with));b.appendChild(document.createElement('br'));
-    b.appendChild(el('span','sub',t.status+' · '+fmt(t.created)));
-    if(t.id===sel)b.setAttribute('aria-current','true');
-    b.onclick=()=>{sel=t.id;render();};l.appendChild(b);
+const S=Swappr,el=S.el,app=document.getElementById('app');
+const names=a=>a.map(c=>c.name).join(', ');
+const mk=(t,fn,cls)=>{const x=el('button','btn small'+(cls?' '+cls:''),t);x.type='button';x.onclick=fn;return x;};
+async function sample(){
+  const ids=['base1-4','base1-2','base1-10','base1-16','base1-14','base1-58'];let m={};
+  try{m=await S.byIds(ids);}catch(e){return;}
+  ids.slice(0,3).forEach(id=>{if(m[id]&&!S.inWish(id))S.toggleWish(m[id]);});
+  const b=S.binders()[0]||S.newBinder('Il mio binder');
+  ids.slice(3).forEach(id=>{if(m[id])S.addToBinder(b.id,m[id],1,'NM');});
+  render();
+}
+function block(m,map,have){
+  const box=el('section','match'),selR=new Set(m.recv),selG=new Set(m.give);
+  const h=el('h3'),a=el('a','plain','Match con '+m.u);a.href='profilo.html?u='+encodeURIComponent(m.u);h.appendChild(a);box.appendChild(h);
+  const mini=(c,sel)=>{
+    const b=el('button','mini');b.type='button';b.setAttribute('aria-pressed','true');b.setAttribute('aria-label',c.name);
+    const im=S.safe(c.img);if(im){const i=document.createElement('img');i.src=im;i.alt=c.name;b.appendChild(i);}else b.textContent=c.name;
+    b.onclick=()=>{const off=sel.has(c.id);off?sel.delete(c.id):sel.add(c.id);b.classList.toggle('off',off);b.setAttribute('aria-pressed',String(!off));};
+    return b;
+  };
+  const row=el('div','mrow'),l=el('div','mside'),r=el('div','mside'),mid=el('span','ic');mid.innerHTML=S.IC.swap;
+  m.recv.forEach(id=>{if(map[id])l.appendChild(mini(map[id],selR));});
+  m.give.forEach(id=>{if(have[id])r.appendChild(mini(have[id],selG));});
+  row.append(l,mid,r);box.appendChild(row);
+  const lab=el('div','mlab');lab.append(el('span','','Tu ricevi'),el('span'),el('span','',m.u+' riceve'));box.appendChild(lab);
+  const go=mk('Proponi scambio',()=>{if(!selR.size||!selG.size)return;S.propose(m.u,[...selG].map(id=>have[id]),[...selR].map(id=>map[id]));render();});
+  go.style.marginTop='12px';box.appendChild(go);return box;
+}
+function trades(){
+  app.appendChild(el('h2','sec','I tuoi scambi'));
+  const ts=S.trades();
+  if(!ts.length){app.appendChild(el('p','sub','Nessuno scambio.'));return;}
+  ts.forEach(t=>{
+    const c=el('section','match');c.appendChild(el('h3','','Scambio con '+t.with));
+    c.appendChild(el('p','sub','Tu ricevi: '+names(t.recv)));
+    c.appendChild(el('p','sub',t.with+' riceve: '+names(t.give)));
+    const st=el('div','row');st.style.margin='10px 0';
+    if(t.status==='Annullato')st.appendChild(el('span','tag warn','Annullato'));
+    else S.FLOW.forEach(f=>st.appendChild(el('span','tag'+(S.FLOW.indexOf(f)<=S.FLOW.indexOf(t.status)?' ok':''),f)));
+    c.appendChild(st);
+    if(S.HELP[t.status])c.appendChild(el('p','sub',S.HELP[t.status]));
+    const row=el('div','row');row.style.marginTop='10px';
+    if(t.status!=='Completato'&&t.status!=='Annullato'){
+      const nx=S.FLOW[S.FLOW.indexOf(t.status)+1];
+      row.append(mk('Segna come: '+nx,()=>{S.setStatus(t.id,nx);render();}),
+        mk('Annulla scambio',()=>{if(confirm(S.t('Annullare questo scambio?'))){S.setStatus(t.id,'Annullato');render();}},'danger'));
+    }
+    const chat=el('a','btn small ghost','Apri chat');chat.href='messaggi.html?c='+encodeURIComponent(t.with);row.appendChild(chat);
+    c.appendChild(row);app.appendChild(c);
   });
 }
-function renderDetail(){
-  const d=$('detail');d.replaceChildren();
-  const t=trades.find(x=>x.id===sel);
-  if(!t){d.appendChild(el('p','sub','Seleziona uno scambio per vedere i dettagli.'));return;}
-  d.appendChild(el('h2','','Scambio con '+t.with));
-  d.appendChild(el('p','sub','Tu dai: '+t.give));
-  d.appendChild(el('p','sub','Tu ricevi: '+t.get));
-  const s=el('div','steps');
-  if(t.status==='Annullato')s.appendChild(el('span','tag warn','Annullato'));
-  else FLOW.forEach(f=>s.appendChild(el('span','tag '+(FLOW.indexOf(f)<=FLOW.indexOf(t.status)?'ok':''),f)));
-  d.appendChild(s);
-  if(HELP[t.status])d.appendChild(el('p','sub',HELP[t.status]));
-  const open=t.status!=='Completato'&&t.status!=='Annullato';
-  if(open){
-    const r=el('div','row');r.style.marginBottom='14px';
-    const next=FLOW[FLOW.indexOf(t.status)+1];
-    const n=el('button','btn small','Segna come: '+next);n.type='button';
-    n.onclick=()=>{t.status=next;addMsg(t,'sistema','Stato aggiornato: '+next+'.');render();};
-    const c=el('button','btn small danger','Annulla scambio');c.type='button';
-    c.onclick=()=>{if(confirm(Swappr.t('Annullare questo scambio?'))){t.status='Annullato';addMsg(t,'sistema','Scambio annullato.');render();}};
-    r.append(n,c);d.appendChild(r);
+async function render(){
+  app.replaceChildren();
+  app.appendChild(el('h1','','Scambi'));
+  const have=S.haveCards();
+  app.appendChild(el('p','sub','La tua wishlist: '+S.wish().length+' carte · Nei tuoi binder: '+Object.keys(have).length+' carte diverse'));
+  app.appendChild(el('h2','sec','I tuoi match'));
+  const ms=S.matches();
+  if(!ms.length){
+    const e=el('div','empty','Nessun match per ora. Aggiungi carte alla wishlist e ai binder: Swappr confronta le tue liste con quelle degli altri collezionisti.');
+    const b=mk('Carica carte di esempio',sample);b.style.marginTop='12px';e.append(document.createElement('br'),b);app.appendChild(e);
+  }else{
+    let map={};try{map=await S.byIds([...new Set(ms.flatMap(m=>m.recv))]);}catch(e){}
+    ms.forEach(m=>app.appendChild(block(m,map,have)));
+    app.appendChild(el('p','sub','Tocca una carta per escluderla dallo scambio. Swappr verifica le carte prima di inoltrarle.'));
+    const a=el('a','sub','Come funziona la verifica');a.href='verifica.html';app.appendChild(a);
   }
-  const chat=el('div','chat');chat.setAttribute('role','log');
-  t.messages.forEach(m=>{
-    const b=el('div','bubble '+(m.from==='sistema'?'sys':'me'),m.text);
-    if(m.from!=='sistema'){const sm=el('small','',m.from+' · '+fmt(m.t));b.appendChild(sm);}
-    chat.appendChild(b);
-  });
-  d.appendChild(chat);chat.scrollTop=chat.scrollHeight;
-  if(open){
-    const f=el('form','chat-form');
-    const i=document.createElement('input');i.maxLength=300;i.placeholder='Scrivi un messaggio…';i.setAttribute('aria-label','Messaggio');
-    const b=el('button','btn small','Invia');b.type='submit';
-    f.append(i,b);
-    f.onsubmit=e=>{e.preventDefault();const v=i.value.trim();if(!v)return;addMsg(t,me(),v);render();};
-    d.appendChild(f);
-  }
+  trades();
 }
-function render(){renderList();renderDetail();}
 render();
 </script>
 </body>
