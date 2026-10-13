@@ -1,6 +1,23 @@
 // Traduzione IT -> EN: sostituisce i testi italiani con quelli inglesi (anche su contenuti creati dopo).
 (function(){
 var D={
+"Vedi tutti i risultati":"See all results",
+"Cerco…":"Searching…",
+"Come ti chiami?":"What is your name?",
+"Scegli il tuo nome utente: lo vedranno gli altri collezionisti.":"Choose your username: other collectors will see it.",
+"Almeno 3 caratteri: lettere, numeri e _.":"At least 3 characters: letters, numbers and _.",
+"Questo nome è già preso.":"This name is already taken.",
+"Scegli il tuo avatar":"Choose your avatar",
+"Un po' di te":"A bit about you",
+"Avanti":"Next",
+"Indietro":"Back",
+"Ho già un account":"I already have an account",
+"Crea un nuovo profilo":"Create a new profile",
+"Colore":"Color",
+"Primi passi":"First steps",
+"Aggiungi una carta alla wishlist":"Add a card to your wishlist",
+"Metti una carta nel tuo binder di scambio":"Put a card in your trade binder",
+"Guarda i tuoi match":"Check your matches",
 "Vai al contenuto":"Skip to content",
 "Per usare Swappr serve JavaScript attivo nel browser.":"Swappr needs JavaScript enabled in your browser.",
 "Chi la offre in scambio":"Who offers it for trade",
@@ -235,6 +252,7 @@ var D={
 "Inserzione pubblicata.":"Listing published."
 };
 var P=[
+[/^Passo (\d) di (\d)$/,function(m){return'Step '+m[1]+' of '+m[2];}],
 [/^(.+) ha delle carte della tua wishlist \((\d+)\)$/,function(m){return m[1]+' has cards from your wishlist ('+m[2]+')';}],
 [/^(.+) cerca delle tue carte \((\d+)\)$/,function(m){return m[1]+' wants some of your cards ('+m[2]+')';}],
 [/^Scrivi a (.+)$/,function(m){return 'Message '+m[1];}],

@@ -64,7 +64,7 @@ function mapCard(c){
 function q1(s){return String(s).replace(/["\\]/g,'');}
 async function cards(o){
   var p=[];
-  if(o.name)p.push('name:"'+q1(o.name)+'*"');
+  if(o.name){String(o.name).toLowerCase().replace(/\bv\s+(max|star|union)\b/g,'v$1').split(/\s+/).map(function(t){return t.replace(/[^\p{L}\p{N}]/gu,'');}).filter(Boolean).forEach(function(t){p.push('name:'+t+'*');});}
   if(o.set)p.push('set.id:'+String(o.set).replace(/[^\w-]/g,''));
   if(o.rarity)p.push('rarity:"'+q1(o.rarity)+'"');
   if(o.supertype)p.push('supertype:"'+q1(o.supertype)+'"');
@@ -148,7 +148,7 @@ function exportAll(){var o={app:'swappr',version:2};DATA.forEach(function(k){o[k
 function importAll(o){
   if(!o||o.app!=='swappr')return false;
   DATA.forEach(function(k){if(Array.isArray(o[k]))set(k,o[k]);});
-  if(o.user&&typeof o.user.username==='string')set('user',{username:o.user.username.slice(0,20),city:String(o.user.city||'').slice(0,40)});
+  if(o.user&&typeof o.user.username==='string'){var av=o.user.avatar||{};set('user',{username:o.user.username.slice(0,20),city:String(o.user.city||'').slice(0,40),bio:String(o.user.bio||'').slice(0,140),avatar:{e:String(av.e||'').slice(0,4),c:/^#[0-9a-f]{6}$/i.test(av.c)?av.c:'#ffd23f'}});}
   return true;
 }
 function wipe(){DATA.concat(['user','session']).forEach(function(k){try{localStorage.removeItem(K[k]);}catch(e){}});}
@@ -288,6 +288,61 @@ async function openFilters(){
     ss.value=u.get('set')||'';rs.value=u.get('rar')||'';us.value=u.get('sup')||'';
   }catch(err){act.appendChild(el('p','msg',NODATA));}
 }
+function suggest(inp,form){
+  var box=el('div','sugg'),list=null,topA=null,topB=null,seq=0,timer=0,page=0,term='',done=true,busy=false,idx=-1;
+  box.id='sugg';box.setAttribute('role','listbox');box.hidden=true;document.body.appendChild(box);
+  inp.setAttribute('role','combobox');inp.setAttribute('aria-autocomplete','list');inp.setAttribute('aria-controls','sugg');inp.setAttribute('aria-expanded','false');
+  function place(){
+    var r=form.getBoundingClientRect(),w=Math.min(560,window.innerWidth-16),l=Math.min(Math.max(8,r.left),window.innerWidth-8-w);
+    box.style.left=l+'px';box.style.width=w+'px';box.style.top=(r.bottom+8)+'px';box.style.maxHeight=Math.max(160,window.innerHeight-r.bottom-100)+'px';
+  }
+  function rows(){return Array.prototype.slice.call(box.querySelectorAll('.sg-row'));}
+  function hi(i){var r=rows();if(!r.length)return;idx=(i+r.length)%r.length;r.forEach(function(x,k){x.classList.toggle('on',k===idx);x.setAttribute('aria-selected',String(k===idx));});r[idx].scrollIntoView({block:'nearest'});}
+  function close(){box.hidden=true;inp.setAttribute('aria-expanded','false');idx=-1;seq++;busy=false;}
+  function note(t){var n=el('div','sg-note',t);list.appendChild(n);return n;}
+  function row(c){
+    var b=el('button','sg-row');b.type='button';b.setAttribute('role','option');
+    var th=el('span','sg-th'),im=safe(c.img);if(im){var i=document.createElement('img');i.src=im;i.alt='';i.loading='lazy';th.appendChild(i);}
+    var tx=el('span','sg-tx');tx.append(el('b','',c.name),el('small','',[c.setName,c.number?'#'+c.number:'',c.rarity].filter(Boolean).join(' · ')));
+    b.append(th,tx);b.onclick=function(){close();openCard(c);};return b;
+  }
+  function ensure(t){
+    if(box.hidden){
+      box.replaceChildren();topA=el('a','sg-row sg-top');topA.setAttribute('role','option');
+      var ic=el('span','ic');ic.innerHTML=IC.search;var tx=el('span','sg-tx');topB=el('b','');tx.append(topB,el('small','','Vedi tutti i risultati'));topA.append(ic,tx);
+      list=el('div','sg-list');box.append(topA,list);place();box.hidden=false;box.scrollTop=0;inp.setAttribute('aria-expanded','true');
+    }
+    topB.textContent='“'+t+'”';topA.href='index.html?q='+encodeURIComponent(t);
+  }
+  async function load(){
+    if(busy||done)return;busy=true;var my=seq,n=note('Cerco…');
+    try{
+      var r=await cards({name:term,page:page+1,size:20});
+      if(my!==seq)return;
+      page++;n.remove();r.cards.forEach(function(c){list.appendChild(row(c));});
+      done=page*20>=r.total;if(!r.cards.length&&page===1)note('Nessuna carta trovata. Prova con un altro nome.');
+    }catch(e){if(my!==seq)return;n.remove();note(NODATA);done=true;}
+    busy=false;
+  }
+  function fresh(t){seq++;busy=false;page=0;term=t;done=t.length<2;idx=-1;list.replaceChildren();if(done)note('Digita almeno due lettere.');else load();}
+  inp.addEventListener('input',function(){
+    var t=inp.value.trim();clearTimeout(timer);
+    if(!t){close();return;}
+    ensure(t);timer=setTimeout(function(){fresh(t);},220);
+  });
+  inp.addEventListener('focus',function(){var t=inp.value.trim();if(t&&box.hidden){ensure(t);fresh(t);}});
+  inp.addEventListener('keydown',function(e){
+    if(box.hidden)return;
+    if(e.key==='ArrowDown'){e.preventDefault();hi(idx+1);}
+    else if(e.key==='ArrowUp'){e.preventDefault();hi(idx-1);}
+    else if(e.key==='Escape'){close();}
+    else if(e.key==='Enter'&&idx>0){e.preventDefault();rows()[idx].click();}
+  });
+  box.addEventListener('scroll',function(){if(box.scrollTop+box.clientHeight>box.scrollHeight-80)load();});
+  document.addEventListener('mousedown',function(e){if(!box.hidden&&!box.contains(e.target)&&!form.contains(e.target))close();});
+  window.addEventListener('resize',function(){if(!box.hidden)place();});
+  form.addEventListener('submit',close);
+}
 function shell(){
   var b=document.body;if(b.dataset.shell==='none')return;
   var old=document.querySelector('header');if(old)old.remove();
@@ -299,7 +354,7 @@ function shell(){
   var si=el('span','ic');si.innerHTML=IC.search;
   var inp=document.createElement('input');inp.type='search';inp.name='q';inp.placeholder='Cerca...';inp.maxLength=60;inp.autocomplete='off';inp.setAttribute('aria-label','Cerca carte');
   if(cur==='index')inp.value=u.get('q')||'';
-  f.append(si,inp);
+  f.append(si,inp);suggest(inp,f);
   var fb=el('button','iconbtn');fb.type='button';fb.innerHTML=IC.filter;fb.setAttribute('aria-label','Filtri');fb.onclick=openFilters;
   var gb=el('a','iconbtn');gb.href='impostazioni.html';gb.innerHTML=IC.gear;gb.setAttribute('aria-label','Impostazioni');
   top.append(lg,f,fb,gb);b.insertBefore(top,b.firstChild.nextSibling&&mn?b.firstChild.nextSibling:b.firstChild);
