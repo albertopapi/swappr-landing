@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="swappr.css">
 </head>
 <body>
-<main id="app"></main>
+<main id="app"><noscript><p class="notice">Per usare Swappr serve JavaScript attivo nel browser.</p></noscript></main>
 <script src="swappr.js"></script>
 <script>
 const S=Swappr,el=S.el,P=new URLSearchParams(location.search),app=document.getElementById('app');
@@ -35,15 +35,15 @@ function results(){
 async function home(){
   const bn=el('p','banner');bn.append('Swappr è in Beta · ');const a=el('a','',"Iscriviti per l'accesso");a.href='beta.html';bn.appendChild(a);app.appendChild(bn);
   sec('Ultime uscite');
-  const g1=el('div','cards');app.appendChild(g1);
-  S.cards({size:14}).then(r=>r.cards.forEach(c=>g1.appendChild(S.tile(c)))).catch(()=>g1.appendChild(el('div','empty',S.NODATA)));
+  const g1=el('div','cards');app.appendChild(g1);const rm1=S.skel(g1,14);
+  S.cards({size:14}).then(r=>{rm1();r.cards.forEach(c=>g1.appendChild(S.tile(c)));}).catch(()=>{rm1();g1.appendChild(el('div','empty',S.NODATA));});
   const more=el('a','btn ghost wide','Sfoglia tutte le carte →');more.href='index.html?all=1';app.appendChild(more);
   sec('Le più ricercate','trend');
   app.appendChild(el('p','sub','Classifica basata sulle wishlist. Utenti e dati dimostrativi finché gli account non sono attivi.'));
   const g2=el('div','cards big');g2.style.marginTop='10px';app.appendChild(g2);
-  const top=S.mostWanted(6);
+  const top=S.mostWanted(6),rm2=S.skel(g2,6);
   try{
-    const m=await S.byIds(top);
+    const m=await S.byIds(top);rm2();
     top.forEach(id=>{
       const c=m[id];if(!c)return;
       const w=el('div','mw');w.appendChild(S.tile(c));
@@ -51,7 +51,7 @@ async function home(){
       S.owners(id).slice(0,2).forEach(u=>{const l=el('a','owner',u);l.href='profilo.html?u='+encodeURIComponent(u);o.appendChild(l);});
       w.appendChild(o);g2.appendChild(w);
     });
-  }catch(e){g2.appendChild(el('div','empty',S.NODATA));}
+  }catch(e){rm2();g2.appendChild(el('div','empty',S.NODATA));}
 }
 (q||set||rar||sup||all)?results():home();
 </script>

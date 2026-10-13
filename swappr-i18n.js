@@ -1,6 +1,24 @@
 // Traduzione IT -> EN: sostituisce i testi italiani con quelli inglesi (anche su contenuti creati dopo).
 (function(){
 var D={
+"Vai al contenuto":"Skip to content",
+"Per usare Swappr serve JavaScript attivo nel browser.":"Swappr needs JavaScript enabled in your browser.",
+"Chi la offre in scambio":"Who offers it for trade",
+"I tuoi binder di scambio":"Your trade binders",
+"Metti nel binder le carte che vuoi scambiare: Swappr le propone a chi le cerca nella sua wishlist.":"Put the cards you want to trade in the binder: Swappr offers them to people who have them on their wishlist.",
+"Le carte che desideri: Swappr le cerca nei binder degli altri collezionisti.":"The cards you want: Swappr looks for them in other collectors' binders.",
+"Come funziona il match":"How matching works",
+"1. Metti in wishlist le carte che desideri e nei binder quelle che vuoi scambiare.":"1. Put the cards you want on your wishlist and the ones you want to trade in your binders.",
+"2. Swappr cerca chi ha le tue carte desiderate e chi cerca le tue.":"2. Swappr finds who has the cards you want and who wants yours.",
+"3. Se ci sono carte da entrambe le parti, ti propone lo scambio: tu confermi e scrivi all'altro collezionista.":"3. If both sides have cards, it proposes the trade: you confirm and message the other collector.",
+"Nessun match completo per ora.":"No complete matches yet.",
+"Altre occasioni":"Other opportunities",
+"Utenti che hanno carte della tua wishlist o cercano carte dei tuoi binder: scrivi per concordare uno scambio.":"Users who have cards from your wishlist or want cards from your binders: write to agree on a trade.",
+"Scambiare carte da remoto in Italia è difficile: con Swappr trovi chi ha le carte che cerchi, anche lontano da te, con verifica delle condizioni. Si parte dalle carte Pokémon.":"Swapping cards remotely in Italy is hard: with Swappr you find who has the cards you want, even far from you, with condition checks. We start with Pokémon cards.",
+"Wishlist e binder di scambio":"Wishlist and trade binder",
+"Metti in wishlist le carte che desideri e nel binder quelle che vuoi scambiare.":"Put the cards you want on your wishlist and the ones you want to trade in the binder.",
+"Match intelligente":"Smart match",
+"Swappr incrocia wishlist e binder di tutti e propone gli scambi possibili. Oppure cerchi una carta e scrivi a chi la offre.":"Swappr cross-matches everyone's wishlists and binders and proposes possible trades. Or search for a card and message whoever offers it.",
 "Cerca...":"Search...",
 "Impostazioni":"Settings",
 "Menu principale":"Main menu",
@@ -217,6 +235,11 @@ var D={
 "Inserzione pubblicata.":"Listing published."
 };
 var P=[
+[/^(.+) ha delle carte della tua wishlist \((\d+)\)$/,function(m){return m[1]+' has cards from your wishlist ('+m[2]+')';}],
+[/^(.+) cerca delle tue carte \((\d+)\)$/,function(m){return m[1]+' wants some of your cards ('+m[2]+')';}],
+[/^Scrivi a (.+)$/,function(m){return 'Message '+m[1];}],
+[/^Ciao! Mi interessa la tua carta (.+)\. Ti va di scambiarla\?$/,function(m){return 'Hi! I am interested in your '+m[1]+' card. Want to swap it?';}],
+[/^Ciao! Ho la carta (.+) che cerchi\. Ti va di scambiare\?$/,function(m){return 'Hi! I have the '+m[1]+' card you are looking for. Want to swap?';}],
 [/^“(.+)” aggiunta\.$/,function(m){return '“'+m[1]+'” added.';}],
 [/^Binder di (.+)$/,function(m){return m[1]+"'s binders";}],
 [/^(.+) · di (.+)$/,function(m){return m[1]+' · by '+m[2];}],

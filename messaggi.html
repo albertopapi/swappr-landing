@@ -3,10 +3,12 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Messaggi - Swappr</title>
+<meta name="description" content="Notifiche e messaggi su Swappr.">
+<meta name="robots" content="noindex">
 <link rel="stylesheet" href="swappr.css">
 </head>
 <body>
-<main id="app"></main>
+<main id="app"><noscript><p class="notice">Per usare Swappr serve JavaScript attivo nel browser.</p></noscript></main>
 <script src="swappr.js"></script>
 <script>
 const S=Swappr,el=S.el,P=new URLSearchParams(location.search),app=document.getElementById('app');
@@ -51,6 +53,7 @@ function thread(){
   });
   box.scrollTop=box.scrollHeight;
   const f=el('form','chat-form'),i=document.createElement('input');i.maxLength=300;i.placeholder='Scrivi un messaggio…';i.setAttribute('aria-label','Messaggio');
+  const re=(P.get('re')||'').slice(0,60);if(re)i.value=S.t(P.get('m')==='w'?'Ciao! Ho la carta '+re+' che cerchi. Ti va di scambiare?':'Ciao! Mi interessa la tua carta '+re+'. Ti va di scambiarla?');
   const bt=el('button','btn small','Invia');bt.type='submit';f.append(i,bt);
   f.onsubmit=e=>{e.preventDefault();const v=i.value.trim();if(!v)return;S.say(who,'me',v,false);location.reload();};
   app.append(f,el('p','sub','Anteprima: i messaggi restano su questo dispositivo.'));

@@ -3,14 +3,16 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Wishlist - Swappr</title>
+<meta name="description" content="La tua wishlist su Swappr: le carte che desideri.">
 <link rel="stylesheet" href="swappr.css">
 </head>
 <body>
-<main id="app"></main>
+<main id="app"><noscript><p class="notice">Per usare Swappr serve JavaScript attivo nel browser.</p></noscript></main>
 <script src="swappr.js"></script>
 <script>
 const S=Swappr,el=S.el,app=document.getElementById('app');
 app.appendChild(el('h1','','La mia wishlist'));
+app.appendChild(el('p','sub','Le carte che desideri: Swappr le cerca nei binder degli altri collezionisti.'));
 const mine=el('div','cards');app.appendChild(mine);
 const add=el('button','btn ghost wide','Aggiungi carte');add.type='button';
 add.onclick=()=>S.picker('Aggiungi alla wishlist',c=>{if(!S.inWish(c.id))S.toggleWish(c);draw();});

@@ -3,10 +3,11 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Binder - Swappr</title>
+<meta name="description" content="I tuoi binder di scambio su Swappr: le carte che vuoi scambiare.">
 <link rel="stylesheet" href="swappr.css">
 </head>
 <body>
-<main id="app"></main>
+<main id="app"><noscript><p class="notice">Per usare Swappr serve JavaScript attivo nel browser.</p></noscript></main>
 <script src="swappr.js"></script>
 <script>
 const S=Swappr,el=S.el,P=new URLSearchParams(location.search),app=document.getElementById('app');
@@ -18,7 +19,8 @@ function cover(name,count,href){
   c.append(i,el('span','cnt',String(count)));a.append(c,el('span','bn',name));return a;
 }
 function list(){
-  head('I tuoi binder');
+  head('I tuoi binder di scambio');
+  app.appendChild(el('p','sub','Metti nel binder le carte che vuoi scambiare: Swappr le propone a chi le cerca nella sua wishlist.'));
   const r=el('div','rail');
   S.binders().forEach(b=>r.appendChild(cover(b.name,b.cards.reduce((s,e)=>s+e.qty,0),'binder.html?b='+b.id)));
   const nb=el('button','bind new');nb.type='button';nb.append(el('div','cover','＋'),el('span','bn','Nuovo binder'));

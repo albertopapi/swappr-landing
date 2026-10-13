@@ -3,10 +3,11 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Scambi - Swappr</title>
+<meta name="description" content="Match e scambi con altri collezionisti, con verifica delle carte da parte di Swappr.">
 <link rel="stylesheet" href="swappr.css">
 </head>
 <body>
-<main id="app"></main>
+<main id="app"><noscript><p class="notice">Per usare Swappr serve JavaScript attivo nel browser.</p></noscript></main>
 <script src="swappr.js"></script>
 <script>
 const S=Swappr,el=S.el,app=document.getElementById('app');
@@ -65,14 +66,30 @@ async function render(){
   app.appendChild(el('h1','','Scambi'));
   const have=S.haveCards();
   app.appendChild(el('p','sub','La tua wishlist: '+S.wish().length+' carte · Nei tuoi binder: '+Object.keys(have).length+' carte diverse'));
+  const how=el('details','panel');how.style.padding='12px 16px';how.appendChild(el('summary','','Come funziona il match'));
+  ['1. Metti in wishlist le carte che desideri e nei binder quelle che vuoi scambiare.','2. Swappr cerca chi ha le tue carte desiderate e chi cerca le tue.','3. Se ci sono carte da entrambe le parti, ti propone lo scambio: tu confermi e scrivi all\'altro collezionista.'].forEach(t=>{const p=el('p','sub',t);p.style.marginTop='8px';how.appendChild(p);});
+  app.appendChild(how);
   app.appendChild(el('h2','sec','I tuoi match'));
-  const ms=S.matches();
-  if(!ms.length){
+  const ms=S.matches(),ps=S.partials();
+  if(!ms.length&&!ps.length){
     const e=el('div','empty','Nessun match per ora. Aggiungi carte alla wishlist e ai binder: Swappr confronta le tue liste con quelle degli altri collezionisti.');
     const b=mk('Carica carte di esempio',sample);b.style.marginTop='12px';e.append(document.createElement('br'),b);app.appendChild(e);
   }else{
-    let map={};try{map=await S.byIds([...new Set(ms.flatMap(m=>m.recv))]);}catch(e){}
+    let map={};try{map=await S.byIds([...new Set(ms.concat(ps).flatMap(m=>m.recv))]);}catch(e){}
+    if(!ms.length)app.appendChild(el('p','sub','Nessun match completo per ora.'));
     ms.forEach(m=>app.appendChild(block(m,map,have)));
+    if(ps.length){
+      app.appendChild(el('h2','sec','Altre occasioni'));
+      app.appendChild(el('p','sub','Utenti che hanno carte della tua wishlist o cercano carte dei tuoi binder: scrivi per concordare uno scambio.'));
+      ps.forEach(m=>{
+        const box=el('section','match'),h=el('h3'),a=el('a','plain',m.u);a.href='profilo.html?u='+encodeURIComponent(m.u);h.appendChild(a);box.appendChild(h);
+        box.appendChild(el('p','sub',m.recv.length?m.u+' ha delle carte della tua wishlist ('+m.recv.length+')':m.u+' cerca delle tue carte ('+m.give.length+')'));
+        const g=el('div','cards');g.style.margin='10px 0';
+        (m.recv.length?m.recv.map(id=>map[id]):m.give.map(id=>have[id])).filter(Boolean).forEach(c=>g.appendChild(S.tile(c,{heart:false})));
+        box.appendChild(g);
+        const w=el('a','btn small','Scrivi a '+m.u);w.href='messaggi.html?c='+encodeURIComponent(m.u);box.appendChild(w);app.appendChild(box);
+      });
+    }
     app.appendChild(el('p','sub','Tocca una carta per escluderla dallo scambio. Swappr verifica le carte prima di inoltrarle.'));
     const a=el('a','sub','Come funziona la verifica');a.href='verifica.html';app.appendChild(a);
   }
