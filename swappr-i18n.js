@@ -1,6 +1,11 @@
 // Traduzione IT -> EN: sostituisce i testi italiani con quelli inglesi (anche su contenuti creati dopo).
 (function(){
 var D={
+"Tema":"Theme",
+"Chiaro":"Light",
+"Scuro":"Dark",
+"Automatico":"Automatic",
+"Cambia tema":"Change theme",
 "Vedi tutti i risultati":"See all results",
 "Cerco…":"Searching…",
 "Come ti chiami?":"What is your name?",

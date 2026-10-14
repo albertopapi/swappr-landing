@@ -11,9 +11,12 @@
 <meta property="og:image" content="https://swappr.org/logo.png">
 <meta property="og:locale" content="it_IT">
 <style>
+:root{color-scheme:light;--bg:#fff;--card:#fff;--paper:#f6f3ec;--ink:#17130f;--mut:#6b655b;--soft:#e6e0d3;--bd:#17130f;--acc:#2b4eff;--accl:#e9edff;--sun:#ffd23f;--mk:#ffd23f;--coral:#ff5a4e;--on-sun:#17130f;--on-acc:#fff;--inv-bg:#17130f;--inv-fg:#fff;--body2:#3d372f;--okbg:#d8f5e8;--okfg:#0b6b45;--infofg:#1b36c4;--danger:#c1362b;--sk1:#efeae0;--sk2:#faf7f0;--sh:4px 4px 0 var(--bd);--sh2:2px 2px 0 var(--bd);--serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;--sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+[data-theme="dark"]{color-scheme:dark;--bg:#14110e;--card:#1c1814;--paper:#241f19;--ink:#f4efe6;--mut:#a79f92;--soft:#3a332b;--bd:#d6cdbb;--acc:#7d95ff;--accl:#252c52;--mk:rgba(255,210,63,.32);--coral:#ff6b5e;--on-acc:#0b1030;--inv-bg:#f4efe6;--inv-fg:#14110e;--body2:#cdc5b6;--okbg:#17382a;--okfg:#7be0b0;--infofg:#a9b8ff;--danger:#ff8a80;--sk1:#2a251f;--sk2:#34302a}
+
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
-:root{--ink:#17130f;--paper:#f6f3ec;--acc:#2b4eff;--sun:#ffd23f;--mut:#6b655b;--serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif}
-html,body{background:#fff}
+
+html,body{background:var(--bg)}
 body{color:var(--ink);display:flex;flex-direction:column;min-height:100vh;text-align:center}
 h1,h2,h3{font-family:var(--serif)}
 @keyframes up{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
@@ -27,41 +30,42 @@ main>*{animation:up .6s cubic-bezier(.2,.7,.2,1) both}main>*:nth-child(3){animat
 .top a{color:var(--ink);font-weight:700;text-decoration:none;border-bottom:3px solid var(--sun)}
 .logo{max-width:170px;width:100%;height:auto;margin-bottom:26px}.logo:hover{animation:wig .6s}
 h1{font-size:2.7rem;font-weight:800;margin-bottom:16px;line-height:1.1;letter-spacing:-.02em}
-h1 span{background:linear-gradient(var(--sun),var(--sun)) no-repeat 0 90%/0% 38%;animation:mark .8s .5s forwards}
+h1 span{background:linear-gradient(var(--mk),var(--mk)) no-repeat 0 90%/0% 38%;animation:mark .8s .5s forwards}
 p.subtitle{font-size:1.15rem;color:var(--mut);max-width:620px;margin-bottom:30px;line-height:1.55}
 .signup{width:100%;max-width:440px;margin-bottom:18px}
 .form-row{display:flex;gap:10px;width:100%}
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
-input[type=email]{flex:1;min-width:0;padding:14px 18px;border-radius:12px;border:2px solid var(--ink);background:#fff;color:var(--ink);font-size:1rem}
-input[type=email]:focus{outline:none;box-shadow:3px 3px 0 var(--ink)}
-button.go{padding:14px 24px;border-radius:12px;border:2px solid var(--ink);background:var(--acc);color:#fff;font-weight:700;font-size:1rem;cursor:pointer;box-shadow:3px 3px 0 var(--ink);transition:transform .12s,box-shadow .12s}
-button.go:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--ink)}button.go:active{transform:translate(3px,3px);box-shadow:none}
+input[type=email]{flex:1;min-width:0;padding:14px 18px;border-radius:12px;border:2px solid var(--bd);background:var(--card);color:var(--ink);font-size:1rem}
+input[type=email]:focus{outline:none;box-shadow:3px 3px 0 var(--bd)}
+button.go{padding:14px 24px;border-radius:12px;border:2px solid var(--bd);background:var(--acc);color:var(--on-acc);font-weight:700;font-size:1rem;cursor:pointer;box-shadow:3px 3px 0 var(--bd);transition:transform .12s,box-shadow .12s}
+button.go:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--bd)}button.go:active{transform:translate(3px,3px);box-shadow:none}
 .consent{display:flex;align-items:flex-start;gap:8px;margin-top:12px;text-align:left;font-size:.8rem;color:var(--mut);line-height:1.4}
 .consent input{margin-top:3px;flex-shrink:0;accent-color:var(--acc)}.consent a{color:var(--acc);font-weight:600}
-.early-badge{display:inline-block;background:var(--sun);border:2px solid var(--ink);color:var(--ink);padding:7px 16px;border-radius:20px;font-size:.88rem;font-weight:700;margin-bottom:40px;box-shadow:2px 2px 0 var(--ink);animation:up .6s .3s both,bob 3s 1s ease-in-out infinite}
+.early-badge{display:inline-block;background:var(--sun);border:2px solid var(--bd);color:var(--on-sun);padding:7px 16px;border-radius:20px;font-size:.88rem;font-weight:700;margin-bottom:40px;box-shadow:2px 2px 0 var(--bd);animation:up .6s .3s both,bob 3s 1s ease-in-out infinite}
 .games-bar{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-bottom:54px}
-.game-badge{background:var(--paper);border:2px solid var(--ink);padding:8px 16px;border-radius:10px;font-size:.9rem;font-weight:700}
+.game-badge{background:var(--paper);border:2px solid var(--bd);padding:8px 16px;border-radius:10px;font-size:.9rem;font-weight:700}
 .section-title{font-size:1.9rem;font-weight:800;margin-bottom:28px}
 .how,.faq-section{max-width:900px;width:100%;margin-bottom:56px}
 .steps,.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:22px;max-width:900px;width:100%;margin-bottom:56px}
-.step-card,.feature-card{background:#fff;padding:24px 20px;border-radius:18px;border:2px solid var(--ink);box-shadow:4px 4px 0 var(--ink);transition:transform .2s,box-shadow .2s}
-.step-card:hover,.feature-card:hover{transform:translate(-2px,-4px) rotate(-.6deg);box-shadow:6px 8px 0 var(--ink)}
+.step-card,.feature-card{background:var(--card);padding:24px 20px;border-radius:18px;border:2px solid var(--bd);box-shadow:4px 4px 0 var(--bd);transition:transform .2s,box-shadow .2s}
+.step-card:hover,.feature-card:hover{transform:translate(-2px,-4px) rotate(-.6deg);box-shadow:6px 8px 0 var(--bd)}
 .how .steps{margin-bottom:0}
-.step-number{display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;background:var(--sun);border:2px solid var(--ink);border-radius:50%;margin-bottom:14px;font-weight:800;font-family:var(--serif)}
+.step-number{display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;background:var(--sun);border:2px solid var(--bd);border-radius:50%;margin-bottom:14px;font-weight:800;font-family:var(--serif);color:var(--on-sun)}
 .step-card h3{font-size:1.25rem;margin-bottom:10px}.step-card p{font-size:.95rem;color:var(--mut);line-height:1.55}
 .feature-card{text-align:left}.feature-card h3{font-size:1.15rem;margin-bottom:8px}.feature-card p{font-size:.95rem;color:var(--mut);line-height:1.55}
 .faq-section{text-align:left;margin-bottom:70px}.faq-section .section-title{text-align:center}
-.faq-item{background:var(--paper);border:2px solid var(--ink);border-radius:14px;margin-bottom:14px;padding:18px 22px}
-.faq-item h3{font-size:1.1rem;margin-bottom:8px}.faq-item p{font-size:.95rem;color:#3d372f;line-height:1.55}
-footer{width:100%;background:var(--paper);border-top:2px solid var(--ink);padding:28px 20px;margin-top:auto;color:var(--mut);font-size:.9rem}
+.faq-item{background:var(--paper);border:2px solid var(--bd);border-radius:14px;margin-bottom:14px;padding:18px 22px}
+.faq-item h3{font-size:1.1rem;margin-bottom:8px}.faq-item p{font-size:.95rem;color:var(--body2);line-height:1.55}
+footer{width:100%;background:var(--paper);border-top:2px solid var(--bd);padding:28px 20px;margin-top:auto;color:var(--mut);font-size:.9rem}
 footer a{color:var(--ink);font-weight:700;text-decoration:none;border-bottom:2px solid var(--sun)}
 .footer-links{margin-top:10px;display:flex;flex-wrap:wrap;justify-content:center;gap:20px}
 @media(max-width:520px){h1{font-size:2rem}p.subtitle{font-size:1.05rem}.form-row{flex-direction:column}button.go{width:100%}.section-title{font-size:1.5rem}}
 </style>
+<script>try{var t=JSON.parse(localStorage.getItem('swappr-theme-v1'));document.documentElement.dataset.theme=(t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches))?'dark':'light';}catch(e){}</script>
 </head>
 <body data-shell="none">
 <main>
-  <div class="top"><a href="index.html">Entra nell'app →</a><span id="langslot"></span></div>
+  <div class="top"><a href="index.html">Entra nell'app →</a><span id="themeslot"></span><span id="langslot"></span></div>
   <img src="logo.png" alt="Swappr" class="logo" width="180" height="180">
   <h1>Trova le carte che cerchi, <span>scambia i tuoi doppi.</span></h1>
   <p class="subtitle">Scambiare carte da remoto in Italia è difficile: con Swappr trovi chi ha le carte che cerchi, anche lontano da te, con verifica delle condizioni. Si parte dalle carte Pokémon.</p>
@@ -100,6 +104,6 @@ footer a{color:var(--ink);font-weight:700;text-decoration:none;border-bottom:2px
   <div class="footer-links"><a href="mailto:info@swappr.org">info@swappr.org</a><a href="privacy.html">Informativa privacy</a><a href="index.html">Apri l'app</a></div>
 </footer>
 <script src="swappr.js"></script>
-<script>Swappr.langButton(document.getElementById('langslot'));</script>
+<script>Swappr.langButton(document.getElementById('langslot'));Swappr.themeButton(document.getElementById('themeslot'));</script>
 </body>
 </html>

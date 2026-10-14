@@ -1,7 +1,7 @@
 // Swappr - nucleo condiviso: dati locali, Pokémon TCG API, barre dell'app, finestre carta/filtri/ricerca.
 (function(){
 'use strict';
-var K={binders:'swappr2-binders',wish:'swappr2-wish',trades:'swappr2-trades',convs:'swappr2-convs',notifs:'swappr2-notifs',follows:'swappr2-follows',user:'swappr-user-v1',session:'swappr-session-v1',lang:'swappr-lang-v1'};
+var K={theme:'swappr-theme-v1',binders:'swappr2-binders',wish:'swappr2-wish',trades:'swappr2-trades',convs:'swappr2-convs',notifs:'swappr2-notifs',follows:'swappr2-follows',user:'swappr-user-v1',session:'swappr-session-v1',lang:'swappr-lang-v1'};
 var DATA=['binders','wish','trades','convs','notifs','follows'];
 function get(k,d){try{var r=localStorage.getItem(K[k]);var v=r?JSON.parse(r):d;return v==null?d:v;}catch(e){return d;}}
 function set(k,v){try{localStorage.setItem(K[k],JSON.stringify(v));return true;}catch(e){return false;}}
@@ -155,7 +155,7 @@ function wipe(){DATA.concat(['user','session']).forEach(function(k){try{localSto
 function setLang(l){set('lang',l);location.reload();}
 function langButton(box){
   var b=el('button','lang-btn','🌐 '+(lang==='it'?'EN':'IT'));b.type='button';b.setAttribute('aria-label','Cambia lingua');
-  b.style.cssText='background:#fff;border:2px solid #17130f;color:#17130f;border-radius:20px;padding:4px 12px;font-size:.85rem;font-weight:700;cursor:pointer;width:auto;box-shadow:2px 2px 0 #17130f';
+  b.style.cssText='background:var(--card,#fff);border:2px solid var(--bd,#17130f);color:var(--ink,#17130f);border-radius:20px;padding:4px 12px;font-size:.85rem;font-weight:700;cursor:pointer;width:auto;box-shadow:2px 2px 0 var(--bd,#17130f)';
   b.onclick=function(){setLang(lang==='it'?'en':'it');};box.appendChild(b);
 }
 
@@ -343,13 +343,35 @@ function suggest(inp,form){
   window.addEventListener('resize',function(){if(!box.hidden)place();});
   form.addEventListener('submit',close);
 }
+/* ---------- tema chiaro/scuro e logo ---------- */
+function themePref(){var t=get('theme','light');return t==='dark'||t==='auto'?t:'light';}
+function themeApply(){
+  var p=themePref(),d=p==='dark'||(p==='auto'&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);
+  document.documentElement.dataset.theme=d?'dark':'light';
+  var m=document.querySelector('meta[name="theme-color"]');if(m)m.content=d?'#14110e':'#ffffff';
+  return d;
+}
+function setTheme(p){set('theme',p);themeApply();}
+function themeButton(box){
+  var b=el('button','lang-btn');b.type='button';b.setAttribute('aria-label','Cambia tema');
+  b.style.cssText='background:var(--card,#fff);border:2px solid var(--bd,#17130f);color:var(--ink,#17130f);border-radius:20px;padding:4px 12px;font-size:.85rem;font-weight:700;cursor:pointer;width:auto;box-shadow:2px 2px 0 var(--bd,#17130f)';
+  function lab(){b.textContent=document.documentElement.dataset.theme==='dark'?'☀️':'🌙';}
+  lab();b.onclick=function(){setTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');lab();};box.appendChild(b);
+}
+var LOGO_SVG='<svg viewBox="0 0 36 36" width="36" height="36" aria-hidden="true"><rect width="36" height="36" rx="9" fill="#2b4eff"/><text x="18" y="26" text-anchor="middle" font-size="22" font-weight="800" fill="#fff" font-family="Georgia,serif">S</text></svg>';
+function logoImg(){
+  var im=document.createElement('img');im.alt='Swappr';
+  var chain=document.documentElement.dataset.theme==='dark'?['logo2-dark.png','logo2.png']:['logo2.png'],k=0;
+  im.onerror=function(){k++;if(k<chain.length){im.src=chain[k];}else{var f=el('span','');f.innerHTML=LOGO_SVG;f.setAttribute('role','img');f.setAttribute('aria-label','Swappr');im.replaceWith(f);}};
+  im.src=chain[0];return im;
+}
 function shell(){
   var b=document.body;if(b.dataset.shell==='none')return;
   var old=document.querySelector('header');if(old)old.remove();
   var cur=location.pathname.split('/').pop().replace('.html','')||'index',u=new URLSearchParams(location.search);
   var mn=document.querySelector('main');if(mn){if(!mn.id)mn.id='main';var sk=el('a','skip','Vai al contenuto');sk.href='#'+mn.id;b.prepend(sk);}
   var top=el('header','topbar'),lg=el('a','logo');lg.href='index.html';lg.setAttribute('aria-label','Swappr');
-  var im=document.createElement('img');im.src='logo.png';im.alt='Swappr';im.width=34;im.height=34;lg.appendChild(im);
+  lg.appendChild(logoImg());
   var f=el('form','search');f.action='index.html';f.method='get';f.setAttribute('role','search');
   var si=el('span','ic');si.innerHTML=IC.search;
   var inp=document.createElement('input');inp.type='search';inp.name='q';inp.placeholder='Cerca...';inp.maxLength=60;inp.autocomplete='off';inp.setAttribute('aria-label','Cerca carte');
@@ -374,12 +396,14 @@ S.binders=binders;S.saveBinders=saveBinders;S.newBinder=newBinder;S.addToBinder=
 S.wish=wish;S.inWish=inWish;S.toggleWish=toggleWish;S.follows=follows;S.toggleFollow=toggleFollow;S.me=me;
 S.notifs=notifs;S.saveNotifs=saveNotifs;S.notify=notify;S.convs=convs;S.saveConvs=saveConvs;S.say=say;
 S.trades=trades;S.propose=propose;S.setStatus=setStatus;S.matches=matches;S.partials=partials;S.mostWanted=mostWanted;
-S.exportAll=exportAll;S.importAll=importAll;S.wipe=wipe;S.setLang=setLang;S.langButton=langButton;
+S.themePref=themePref;S.setTheme=setTheme;S.themeButton=themeButton;S.exportAll=exportAll;S.importAll=importAll;S.wipe=wipe;S.setLang=setLang;S.langButton=langButton;
 S.tile=tile;S.feed=feed;S.skel=skel;S.openCard=openCard;S.picker=picker;S.openFilters=openFilters;S.unreadCount=unreadCount;
 S._t={mapCard:mapCard};
 window.Swappr=S;
 if(!document.querySelector('link[rel~="icon"]')){['icon','apple-touch-icon'].forEach(function(r){var l=document.createElement('link');l.rel=r;l.href='logo.png';document.head.appendChild(l);});}
 if(!document.querySelector('meta[name="theme-color"]')){var tm=document.createElement('meta');tm.name='theme-color';tm.content='#ffffff';document.head.appendChild(tm);}
+themeApply();
+if(window.matchMedia)try{window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){if(themePref()==='auto')themeApply();});}catch(e){}
 shell();
 if(lang==='en'){var sc=document.createElement('script');sc.src='swappr-i18n.js';document.body.appendChild(sc);}
 })();

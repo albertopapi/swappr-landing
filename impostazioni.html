@@ -6,6 +6,7 @@
 <meta name="description" content="Impostazioni di Swappr: lingua, informazioni e backup.">
 <meta name="robots" content="noindex">
 <link rel="stylesheet" href="swappr.css">
+<script>try{var t=JSON.parse(localStorage.getItem('swappr-theme-v1'));document.documentElement.dataset.theme=(t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches))?'dark':'light';}catch(e){}</script>
 </head>
 <body>
 <main id="app"><noscript><p class="notice">Per usare Swappr serve JavaScript attivo nel browser.</p></noscript></main>
@@ -17,6 +18,10 @@ app.appendChild(el('h2','sec','Lingua'));
 const tabs=el('div','tabs');
 [['it','Italiano'],['en','English']].forEach(([l,n])=>{const b=el('button','tab',n);b.type='button';b.setAttribute('aria-selected',String(S.lang===l));b.onclick=()=>{if(S.lang!==l)S.setLang(l);};tabs.appendChild(b);});
 app.appendChild(tabs);
+app.appendChild(el('h2','sec','Tema'));
+const th=el('div','tabs');
+function drawTheme(){th.replaceChildren();[['light','Chiaro'],['dark','Scuro'],['auto','Automatico']].forEach(([v,n])=>{const b=el('button','tab',n);b.type='button';b.setAttribute('aria-selected',String(S.themePref()===v));b.onclick=()=>{S.setTheme(v);drawTheme();};th.appendChild(b);});}
+drawTheme();app.appendChild(th);
 app.appendChild(el('h2','sec','Informazioni'));
 [['Come funziona la verifica','verifica.html'],['Guida alle condizioni','guida.html'],['Informativa privacy','privacy.html'],['Iscriviti alla Beta','beta.html'],['Cardmarket ↗','https://www.cardmarket.com/'+S.lang+'/Pokemon']].forEach(([t,h])=>{
   const a=el('a','item',t);a.href=h;if(h.startsWith('https')){a.target='_blank';a.rel='noopener noreferrer';}app.appendChild(a);

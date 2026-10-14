@@ -34,3 +34,9 @@ Apri swappr-config.js e inserisci "Project URL" e "anon public key" del tuo prog
 PRIMA DEL LANCIO
 - Compila i dati del titolare in privacy.html.
 - Servono Termini e Condizioni del servizio di verifica e intermediazione (da far redigere a un professionista).
+
+LOGO E TEMA
+- Logo in alto a sinistra nell'app: metti nella cartella logo2.png (il logo stilizzato).
+  Facoltativo: logo2-dark.png, usato nel tema scuro. Se logo2.png manca, compare una "S" di riserva.
+- La pagina beta.html (iscrizione) continua a usare logo.png.
+- Il tema (chiaro, scuro, automatico) si cambia da Impostazioni; nella pagina beta c'e' il pulsante luna/sole.
