@@ -1,23 +1,36 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Cerca carte - Swappr</title>
-<meta name="description" content="Swappr: sfoglia tutte le carte Pokémon, crea i tuoi binder e la tua wishlist e scambia con altri collezionisti.">
-<link rel="stylesheet" href="swappr.css">
+<meta name="description" content="Sfoglia tutte le carte Pokémon, crea i tuoi binder e la tua wishlist e scambia con altri collezionisti.">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="logo.png">
+<link rel="preconnect" href="https://images.pokemontcg.io">
+<link rel="preconnect" href="https://api.pokemontcg.io" crossorigin>
+<link rel="stylesheet" href="swappr.css?v=8">
 <script>try{var t=JSON.parse(localStorage.getItem('swappr-theme-v1'));document.documentElement.dataset.theme=(t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches))?'dark':'light';}catch(e){}</script>
 </head>
 <body>
 <main id="app"><noscript><p class="notice">Per usare Swappr serve JavaScript attivo nel browser.</p></noscript></main>
-<script src="swappr.js"></script>
+<script src="swappr.js?v=8"></script>
 <script>
 const S=Swappr,el=S.el,P=new URLSearchParams(location.search),app=document.getElementById('app');
 const q=(P.get('q')||'').trim(),set=P.get('set')||'',rar=P.get('rar')||'',sup=P.get('sup')||'',all=P.get('all');
-const natural=(a,b)=>String(a.number).localeCompare(String(b.number),undefined,{numeric:true});
+const PAGE=30,natural=(a,b)=>String(a.number).localeCompare(String(b.number),undefined,{numeric:true});
 function sec(t,ic){const h=el('h2','sec');h.appendChild(el('span','',t));if(ic){const i=el('span','ic');i.innerHTML=S.IC[ic];h.appendChild(i);}app.appendChild(h);}
+
+/* tutte le carte di un'espansione: la prima richiesta dice quante pagine servono, le altre partono insieme */
+async function loadSet(){
+  const f={name:q,set,rarity:rar,supertype:sup,size:250};
+  const first=await S.cards(Object.assign({page:1},f)),out=first.cards.slice(),n=Math.ceil(first.total/250);
+  if(n>1)(await Promise.all(Array.from({length:n-1},(_,i)=>S.cards(Object.assign({page:i+2},f))))).forEach(r=>out.push(...r.cards));
+  return out.sort(natural);
+}
 function results(){
   app.appendChild(el('h1','','Risultati'));
-  const row=el('div','row');row.style.marginBottom='12px';
+  const row=el('div','row');row.style.marginBottom='14px';
   if(q)row.appendChild(el('span','tag info','“'+q+'”'));
   if(rar)row.appendChild(el('span','tag',rar));
   if(sup)row.appendChild(el('span','tag',sup));
@@ -28,31 +41,31 @@ function results(){
   const grid=el('div','cards'),sent=el('div','sentinel');app.append(grid,sent);
   let list=null;
   const loader=set?async page=>{
-    if(!list){list=[];for(let p=1;;p++){const r=await S.cards({name:q,set,rarity:rar,supertype:sup,page:p,size:250});list.push(...r.cards);if(p*250>=r.total)break;}list.sort(natural);}
-    return{cards:list.slice((page-1)*48,page*48),total:list.length};
-  }:page=>S.cards({name:q,rarity:rar,supertype:sup,page,size:48});
-  S.feed(grid,sent,loader,null,t=>{cnt.textContent=t+' carte trovate';});
+    if(!list)list=await loadSet();
+    return{cards:list.slice((page-1)*PAGE,page*PAGE),total:list.length};
+  }:page=>S.cards({name:q,rarity:rar,supertype:sup,page,size:PAGE});
+  S.feed(grid,sent,loader,null,t=>{cnt.textContent=t+(t===1?' carta trovata':' carte trovate');});
 }
 async function home(){
-  const bn=el('p','banner');bn.append('Swappr è in Beta · ');const a=el('a','',"Iscriviti per l'accesso");a.href='beta.html';bn.appendChild(a);app.appendChild(bn);
+  const bn=el('p','beta');bn.append('Swappr è in Beta. ');const a=el('a','',"Iscriviti per l'accesso");a.href='beta.html';bn.appendChild(a);app.appendChild(bn);
   sec('Ultime uscite');
-  const g1=el('div','cards');app.appendChild(g1);const rm1=S.skel(g1,14);
-  S.cards({size:14}).then(r=>{rm1();r.cards.forEach(c=>g1.appendChild(S.tile(c)));}).catch(()=>{rm1();g1.appendChild(el('div','empty',S.NODATA));});
-  const more=el('a','btn ghost wide','Sfoglia tutte le carte →');more.href='index.html?all=1';app.appendChild(more);
+  const g1=el('div','cards dense');app.appendChild(g1);const rm1=S.skel(g1,14);
+  S.cards({size:14}).then(r=>{rm1();r.cards.forEach(c=>g1.appendChild(S.tile(c,{eager:true})));}).catch(()=>{rm1();g1.appendChild(S.failBox());});
+  const more=el('a','btn ghost wide','Sfoglia tutte le carte');more.href='index.html?all=1';app.appendChild(more);
   sec('Le più ricercate','trend');
-  app.appendChild(el('p','sub','Classifica basata sulle wishlist. Utenti e dati dimostrativi finché gli account non sono attivi.'));
-  const g2=el('div','cards big');g2.style.marginTop='10px';app.appendChild(g2);
+  app.appendChild(el('p','sub','In base alle wishlist. Utenti di esempio finché gli account non sono attivi.'));
+  const g2=el('div','cards big');g2.style.marginTop='12px';app.appendChild(g2);
   const top=S.mostWanted(6),rm2=S.skel(g2,6);
   try{
     const m=await S.byIds(top);rm2();
     top.forEach(id=>{
       const c=m[id];if(!c)return;
-      const w=el('div','mw');w.appendChild(S.tile(c));
-      const o=el('div','owners');
-      S.owners(id).slice(0,2).forEach(u=>{const l=el('a','owner',u);l.href='profilo.html?u='+encodeURIComponent(u);o.appendChild(l);});
-      w.appendChild(o);g2.appendChild(w);
+      const w=el('div');w.appendChild(S.tile(c,{eager:true}));
+      const u=S.owners(id)[0];
+      if(u){const l=el('a','who');l.href='profilo.html?u='+encodeURIComponent(u);l.append(S.avatar(u,{sm:true}),el('span','',u));w.appendChild(l);}
+      g2.appendChild(w);
     });
-  }catch(e){rm2();g2.appendChild(el('div','empty',S.NODATA));}
+  }catch(e){rm2();g2.appendChild(S.failBox());}
 }
 (q||set||rar||sup||all)?results():home();
 </script>

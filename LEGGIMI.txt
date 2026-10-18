@@ -1,42 +1,90 @@
-SWAPPR - NUOVO SITO (app in stile mobile)
-=========================================
+SWAPPR - SITO COMPLETO (stile piu' pulito e caricamenti piu' veloci)
+====================================================================
 
-Questo archivio contiene TUTTI i file del sito. logo.png non e' incluso: e' il tuo, lascialo dov'e'.
+Questo archivio contiene TUTTI i file del sito.
+I loghi (logo.png, logo2.png, logo2-dark.png) NON sono inclusi: sono tuoi, lasciali dove sono.
+
 
 COME PUBBLICARLO
 1. Estrai lo zip (tasto destro > Estrai tutto).
-2. Apri Desktop\swappr-landing e CANCELLA tutti i file tranne:
-      logo.png
-      la cartella nascosta .git   (non toccarla mai)
-   Cosi' spariscono le vecchie pagine (catalogo, cerca, match, mercato, calcolatore, dashboard, account...).
-3. Copia tutti i file della cartella estratta (Ctrl+A, Ctrl+C) e incollali in swappr-landing (Ctrl+V).
+2. Apri la cartella Desktop\swappr-landing.
+   - Se ci sono ancora pagine di versioni molto vecchie (catalogo, calcolatore, dashboard, mercato...),
+     cancellale. NON cancellare mai: la cartella nascosta .git, logo.png, logo2.png, logo2-dark.png.
+   - Se hai gia' pubblicato la versione precedente di questa app, non serve cancellare niente.
+3. Seleziona tutto il contenuto della cartella estratta (Ctrl+A, Ctrl+C) e incollalo in swappr-landing (Ctrl+V).
+   Ci sono anche la cartella "api" e il file vercel.json: devono finire nella cartella principale.
+   Se Windows chiede cosa fare con i file uguali, scegli "Sostituisci i file nella destinazione".
 4. Nel terminale, dentro swappr-landing:
       git add -A
-      git commit -m "Swappr: nuova app"
+      git commit -m "Swappr: nuovo stile e caricamenti piu' veloci"
       git push
 5. Vercel pubblica da solo in uno o due minuti.
+6. Se vedi ancora la versione vecchia, ricarica la pagina con Ctrl+F5.
+
 
 STRUTTURA
-- index.html        Cerca (home): ultime uscite, piu' ricercate, tutte le carte, ricerca e filtri
-- binder.html       I tuoi binder e quelli degli altri
-- wishlist.html     La tua wishlist e quelle degli altri
-- scambi.html       Match e scambi con verifica Swappr
-- messaggi.html     Notifiche e messaggi
-- profilo.html      Profilo, accesso e registrazione
-- impostazioni.html Lingua, informazioni, backup
-- beta.html         Pagina con la lista d'attesa (la vecchia home)
-- verifica.html, guida.html, privacy.html
+- index.html         Cerca (home): ultime uscite, piu' ricercate, tutte le carte, ricerca e filtri
+- binder.html        I tuoi binder e quelli degli altri
+- wishlist.html      La tua wishlist e quelle degli altri
+- scambi.html        Match e scambi con verifica Swappr
+- messaggi.html      Notifiche e messaggi
+- profilo.html       Profilo, accesso e registrazione
+- impostazioni.html  Tema, lingua, informazioni, backup, cache
+- beta.html          Pagina con la lista d'attesa (la vecchia home)
+- verifica.html, guida.html, privacy.html, 404.html
+- swappr.css         Stile di tutte le pagine
+- swappr.js          Funzioni comuni (carte, binder, wishlist, match, cache)
+- swappr-i18n.js     Traduzione in inglese (si carica solo se scegli English)
+- swappr-config.js   Collegamento ai tuoi account veri (Supabase), per ora vuoto
+- api/pokemon.js     Ponte facoltativo che rende piu' veloci le carte (vedi sotto)
+- vercel.json        Regole di cache per i file di stile e script
+- robots.txt, sitemap.xml
+
+
+STILE
+Sfondo bianco, un solo colore (blu), carattere di sistema (nessun font da scaricare), niente emoji.
+Il tema scuro si sceglie da Impostazioni. Gli altri utenti che vedi (Athos, Luca, Lucia...) sono
+di esempio e sono indicati come tali finche' non colleghi gli account veri.
+
+
+VELOCITA' - COSA CAMBIA
+- Le carte gia' viste restano salvate nel browser: alla visita dopo la pagina parte subito, senza richieste.
+- Alla prima visita "Le piu' ricercate" compaiono subito, con carte di base gia' incluse nel sito.
+- Le richieste uguali vengono unite; se la Pokemon TCG API e' lenta o dice "troppe richieste" il sito
+  aspetta e riprova. Se non risponde, mostra un messaggio con il pulsante "Riprova".
+- Le immagini fuori dalla prima schermata si caricano solo quando servono e la pagina non "salta".
+- Il ponte api/pokemon.js (facoltativo): su Vercel conserva le risposte della API e le serve a tutti i
+  visitatori molto piu' in fretta. Se il file manca o non risponde, il sito chiama la API direttamente
+  e funziona lo stesso.
+- Facoltativo: con una chiave gratuita di pokemontcg.io la API e' meno lenta. Mettila su Vercel
+  (Project Settings > Environment Variables) con il nome POKEMONTCG_API_KEY. Mai dentro i file del sito.
+- In Impostazioni c'e' il pulsante "Svuota cache carte": serve se qualcosa sembra vecchio.
+
+
+QUANDO MODIFICHI swappr.css, swappr.js O swappr-i18n.js
+I browser tengono questi tre file per un giorno. Per far scaricare subito la versione nuova cambia il
+numero di versione (ora 8, scrivi 9 poi 10...) in DUE posti, sempre uguale:
+  1. all'inizio di swappr.js, nella riga   var V='8';
+  2. in tutte le pagine .html, dove c'e'   ?v=8   (in VS Code: Ctrl+Maiusc+H, cerca ?v=8, sostituisci ?v=9)
+
 
 ACCOUNT VERI
 Apri swappr-config.js e inserisci "Project URL" e "anon public key" del tuo progetto Supabase
 (Project Settings > API). Mai la chiave service_role.
+Finche' non lo fai, wishlist, binder, scambi e messaggi restano salvati solo nel browser di chi li crea.
 
-PRIMA DEL LANCIO
-- Compila i dati del titolare in privacy.html.
-- Servono Termini e Condizioni del servizio di verifica e intermediazione (da far redigere a un professionista).
+
+LINGUA INGLESE
+Per aggiungere o correggere una frase: apri swappr-i18n.js e inserisci   "testo italiano":"English text"
+nell'elenco D. Per frasi con nomi o numeri dentro (es. "Binder di Athos") serve un modello nell'elenco P.
+
 
 LOGO E TEMA
 - Logo in alto a sinistra nell'app: metti nella cartella logo2.png (il logo stilizzato).
   Facoltativo: logo2-dark.png, usato nel tema scuro. Se logo2.png manca, compare una "S" di riserva.
-- La pagina beta.html (iscrizione) continua a usare logo.png.
-- Il tema (chiaro, scuro, automatico) si cambia da Impostazioni; nella pagina beta c'e' il pulsante luna/sole.
+- La pagina beta.html (iscrizione) e l'icona della scheda usano logo.png.
+
+
+PRIMA DEL LANCIO
+- In privacy.html sostituisci [NOME E COGNOME O RAGIONE SOCIALE] e [INDIRIZZO COMPLETO] con i tuoi dati.
+- Servono Termini e Condizioni del servizio di verifica e intermediazione (da far redigere a un professionista).

@@ -1,44 +1,45 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Profilo - Swappr</title>
 <meta name="description" content="Il tuo profilo da collezionista su Swappr.">
 <meta name="robots" content="noindex">
-<link rel="stylesheet" href="swappr.css">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="logo.png">
+<link rel="preconnect" href="https://images.pokemontcg.io">
+<link rel="preconnect" href="https://api.pokemontcg.io" crossorigin>
+<link rel="stylesheet" href="swappr.css?v=8">
 <script>try{var t=JSON.parse(localStorage.getItem('swappr-theme-v1'));document.documentElement.dataset.theme=(t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches))?'dark':'light';}catch(e){}</script>
 </head>
 <body>
 <main id="app"><noscript><p class="notice">Per usare Swappr serve JavaScript attivo nel browser.</p></noscript></main>
 <script src="swappr-config.js"></script>
-<script src="swappr.js"></script>
+<script src="swappr.js?v=8"></script>
 <script>
 const S=Swappr,el=S.el,P=new URLSearchParams(location.search),app=document.getElementById('app');
 const C=window.SWAPPR_CONFIG||{},REMOTE=!!(C.SUPABASE_URL&&C.SUPABASE_ANON_KEY),who=P.get('u');
-const EMO=['⚡','🔥','💧','🌿','🌙','⭐','👻','🐉','🎴','🦊','🐱','🌸'],COL=['#ffd23f','#ff9fa0','#9db4ff','#9be3b8','#d3b8ff','#ffc58a'];
 const btn=(t,fn,cls)=>{const x=el('button','btn small'+(cls?' '+cls:''),t);x.type='button';x.onclick=fn;return x;};
 const stat=(n,l)=>{const s=el('span','sub');s.appendChild(el('b','',String(n)));s.append(' ');s.appendChild(el('span','',l));return s;};
 const msgEl=()=>{const m=el('p','msg');m.setAttribute('role','status');m.setAttribute('aria-live','polite');return m;};
-function avatar(u,big){
-  const a=el('div','av'+(big?' big':'')),v=u.avatar;
-  if(v&&v.e){a.textContent=v.e;a.style.background=/^#[0-9a-f]{6}$/i.test(v.c)?v.c:COL[0];a.style.fontSize=big?'2rem':'1.2rem';}
-  else a.textContent=u.username[0].toUpperCase();
-  return a;
-}
+const colorOf=u=>u&&u.avatar&&/^#[0-9a-f]{6}$/i.test(u.avatar.c||'')?u.avatar.c:'';
 function head(u,extra){
-  const h=el('div','phead');h.appendChild(avatar(u,true));
+  const h=el('div','phead');h.appendChild(S.avatar(u.username,{big:true,color:colorOf(u)}));
   const t=el('div');t.appendChild(el('h1','',u.username));if(extra)t.appendChild(extra);h.appendChild(t);app.appendChild(h);
 }
-function rail(title,items){
-  app.appendChild(el('h2','sec',title));const r=el('div','rail');
-  items.forEach(i=>{const a=el('a','bind');a.href=i[2];const c=el('div','cover'),ic=el('span','ic');ic.innerHTML=S.IC.book;c.append(ic,el('span','cnt',String(i[1])));a.append(c,el('span','bn',i[0]));r.appendChild(a);});
-  if(!items.length)r.appendChild(el('p','sub','—'));app.appendChild(r);
+function binders(title,items){
+  app.appendChild(el('h2','sec',title));
+  if(!items.length){app.appendChild(el('p','sub','Nessun binder.'));return;}
+  app.appendChild(S.rail(items.map(i=>S.cover(i[0],i[1],i[2],i[3]))));
 }
-function wishGrid(title,cards,opt){
-  app.appendChild(el('h2','sec',title));const g=el('div','cards');
-  cards.forEach(c=>g.appendChild(S.tile(c,opt)));if(!cards.length)g.appendChild(el('div','empty','—'));app.appendChild(g);
+function wishRail(title,cards,opt){
+  app.appendChild(el('h2','sec',title));
+  if(!cards.length){app.appendChild(el('p','sub','Nessuna carta.'));return;}
+  app.appendChild(S.rail(cards.map(c=>S.tile(c,opt))));
 }
-/* --- account (Supabase se configurato, altrimenti profilo locale) --- */
+
+/* --- account (Supabase se configurato, altrimenti profilo salvato su questo dispositivo) --- */
 async function api(path,method,body,token){
   const h={apikey:C.SUPABASE_ANON_KEY,'Content-Type':'application/json'};if(token)h.Authorization='Bearer '+token;
   const r=await fetch(C.SUPABASE_URL.replace(/\/$/,'')+'/auth/v1/'+path,{method,headers:h,body:body?JSON.stringify(body):undefined});
@@ -66,11 +67,11 @@ function loginForm(){
 const nameError=n=>!/^[A-Za-z0-9_]{3,20}$/.test(n)?'Almeno 3 caratteri: lettere, numeri e _.':(S.DEMO.some(u=>u.u.toLowerCase()===n.toLowerCase())?'Questo nome è già preso.':'');
 function wizard(old){
   app.replaceChildren();
-  const st={username:old?old.username:'',avatar:Object.assign({},(old&&old.avatar)||{e:EMO[0],c:COL[0]}),city:old&&old.city||'',bio:old&&old.bio||'',email:'',pw:''};
+  const st={username:old?old.username:'',avatar:{c:colorOf(old)||S.AVC[0]},city:old&&old.city||'',bio:old&&old.bio||'',email:'',pw:''};
   const needAcc=REMOTE&&!old,total=3;let step=1;
   app.appendChild(el('h1','',old?'Modifica profilo':'Crea il profilo'));
   if(!old)app.appendChild(el('div','notice',REMOTE?"Accedi o crea un account: i dati dell'account sono gestiti da Supabase.":'Modalità anteprima: il profilo è salvato solo su questo dispositivo, senza password. Per attivare i veri account compila swappr-config.js con i dati di Supabase.'));
-  const box=el('section','panel wiz');app.appendChild(box);
+  const box=el('section','panel');app.appendChild(box);
   if(needAcc){const l=el('a','sub','Ho già un account');l.href='#';l.onclick=e=>{e.preventDefault();loginForm();};app.appendChild(l);}
   const field=(label,id,val,max,type)=>{const f=el('div','field'),l=el('label','',label);l.htmlFor=id;const i=document.createElement(type==='area'?'textarea':'input');i.id=id;if(type&&type!=='area')i.type=type;i.maxLength=max;i.value=val;f.append(l,i);return[f,i];};
   function draw(){
@@ -79,18 +80,18 @@ function wizard(old){
     const m=msgEl();let next=()=>'';
     if(step===1){
       box.append(el('h2','','Come ti chiami?'),el('p','sub','Scegli il tuo nome utente: lo vedranno gli altri collezionisti.'));
-      const[f,i]=field('Nome utente','un',st.username,20);i.autocomplete='off';box.appendChild(f);
+      const[f,i]=field('Nome utente','un',st.username,20);i.autocomplete='off';f.style.marginTop='14px';box.appendChild(f);
       i.oninput=()=>{st.username=i.value.trim();m.textContent='';};
       next=()=>nameError(st.username);
     }else if(step===2){
-      box.appendChild(el('h2','','Scegli il tuo avatar'));
-      box.appendChild(avatar({username:st.username||'?',avatar:st.avatar},true));
-      const eg=el('div','emo');EMO.forEach(e=>{const b=el('button','',e);b.type='button';b.setAttribute('aria-label',e);b.setAttribute('aria-pressed',String(st.avatar.e===e));b.onclick=()=>{st.avatar.e=e;draw();};eg.appendChild(b);});
-      const cg=el('div','emo');COL.forEach(c=>{const b=el('button','sw');b.type='button';b.style.background=c;b.setAttribute('aria-label','Colore');b.setAttribute('aria-pressed',String(st.avatar.c===c));b.onclick=()=>{st.avatar.c=c;draw();};cg.appendChild(b);});
-      box.append(eg,cg);
+      box.appendChild(el('h2','','Scegli il colore del tuo avatar'));
+      const pv=el('div');pv.style.margin='14px 0 4px';pv.appendChild(S.avatar(st.username||'?',{big:true,color:st.avatar.c}));box.appendChild(pv);
+      const sw=el('div','sws');
+      S.AVC.forEach((c,k)=>{const b=el('button');b.type='button';b.style.background=c;b.setAttribute('aria-label',S.AVN[k]);b.setAttribute('aria-pressed',String(st.avatar.c===c));b.onclick=()=>{st.avatar.c=c;draw();};sw.appendChild(b);});
+      box.appendChild(sw);
     }else{
       box.appendChild(el('h2','',"Un po' di te"));
-      const grid=el('div','form-grid');
+      const grid=el('div','form-grid');grid.style.marginTop='14px';
       const[fc,ic]=field('Città (facoltativa)','ct',st.city,40);ic.oninput=()=>{st.city=ic.value;};grid.appendChild(fc);box.appendChild(grid);
       const[fb,ib]=field('Descrizione (facoltativa)','bio',st.bio,140,'area');const cnt=el('p','sub',st.bio.length+'/140');ib.oninput=()=>{st.bio=ib.value;cnt.textContent=ib.value.length+'/140';};fb.style.marginTop='12px';box.append(fb,cnt);
       if(needAcc){
@@ -124,35 +125,34 @@ function wizard(old){
 async function logout(){
   const me=S.me();
   if(me.remote){const s=sess();try{if(s)await api('logout','POST',null,s.access_token);}catch(e){}S.set('session',null);S.set('user',null);}
-  else{if(!confirm(S.t('Eliminare il profilo da questo dispositivo? Binder e scambi restano salvati.')))return;try{localStorage.removeItem('swappr-user-v1');}catch(e){}}
+  else{if(!await S.confirm('Eliminare il profilo da questo dispositivo?','Binder e scambi restano salvati.','Elimina profilo',true))return;try{localStorage.removeItem('swappr-user-v1');}catch(e){}}
   location.href='profilo.html';
 }
 function firstSteps(){
   const items=[['Aggiungi una carta alla wishlist','wishlist.html',S.wish().length>0],['Metti una carta nel tuo binder di scambio','binder.html',Object.keys(S.haveCards()).length>0],['Guarda i tuoi match','scambi.html',S.matches().length>0||S.trades().length>0]];
   if(items.every(i=>i[2]))return;
-  const p=el('section','panel');p.appendChild(el('h2','','Primi passi'));
-  items.forEach(i=>{const a=el('a','item');a.href=i[1];const tx=el('span','tx');tx.appendChild(el('span','',i[0]));a.append(el('span','av',i[2]?'✓':'○'),tx);p.appendChild(a);});
-  app.appendChild(p);
+  app.appendChild(el('h2','sec','Primi passi'));
+  items.forEach(i=>{const a=el('a','item');a.href=i[1];const tx=el('span','tx');tx.appendChild(el('span','',i[0]));const c=el('span','chk'+(i[2]?' on':''));if(i[2])c.innerHTML=S.IC.check;a.append(c,tx);app.appendChild(a);});
 }
 function mine(){
   const me=S.me();if(!me)return wizard();
   const st=el('div','row');st.style.gap='18px';st.append(stat(0,'Follower'),stat(S.follows().length,'Segui'));
   head(me,st);
-  if(me.city||me.bio){const t=el('div');if(me.city)t.appendChild(el('p','sub',me.city));if(me.bio)t.appendChild(el('p','',me.bio));t.style.marginBottom='6px';app.appendChild(t);}
+  if(me.city||me.bio){const t=el('div');if(me.city)t.appendChild(el('p','sub',me.city));if(me.bio)t.appendChild(el('p','',me.bio));t.style.margin='8px 0 4px';app.appendChild(t);}
   const act=el('div','row');act.style.margin='12px 0';
   act.append(btn('Modifica profilo',()=>wizard(me),'ghost'),btn(me.remote?'Esci':'Elimina profilo locale',logout,'danger'));app.appendChild(act);
   firstSteps();
-  rail('I miei binder',S.binders().map(b=>[b.name,b.cards.reduce((s,e)=>s+e.qty,0),'binder.html?b='+b.id]));
-  wishGrid('La mia wishlist',S.wish(),{onWish:()=>location.reload()});
+  binders('I miei binder',S.binders().map(b=>[b.name,b.cards.reduce((s,e)=>s+e.qty,0),b.cards.length,'binder.html?b='+b.id]));
+  wishRail('La mia wishlist',S.wish(),{onWish:()=>location.reload()});
 }
 async function demo(u){
-  head({username:u.u},el('span','tag info','Utente dimostrativo'));
+  head({username:u.u},el('span','tag info','Utente di esempio'));
   const f=S.follows().includes(u.u),act=el('div','row');act.style.margin='12px 0';
   act.append(btn(f?'Non seguire più':'Inizia a seguire',()=>{S.toggleFollow(u.u);location.reload();},f?'ghost':''));
   const m=el('a','btn small ghost','Scrivi');m.href='messaggi.html?c='+encodeURIComponent(u.u);act.appendChild(m);app.appendChild(act);
-  rail('Binder',u.b.map((b,i)=>[b[0],b[1].length,'binder.html?u='+encodeURIComponent(u.u)+'&b='+i]));
+  binders('Binder',u.b.map((b,i)=>[S.demoName(b[0]),b[1].length,b[1].length,'binder.html?u='+encodeURIComponent(u.u)+'&b='+i]));
   let mp={};try{mp=await S.byIds(u.w);}catch(e){}
-  wishGrid('Wishlist',u.w.map(id=>mp[id]).filter(Boolean));
+  wishRail('Wishlist',u.w.map(id=>mp[id]).filter(Boolean));
 }
 (async()=>{
   const d=who&&S.DEMO.find(x=>x.u===who);

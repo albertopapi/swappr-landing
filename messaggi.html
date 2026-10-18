@@ -1,16 +1,19 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Messaggi - Swappr</title>
 <meta name="description" content="Notifiche e messaggi su Swappr.">
 <meta name="robots" content="noindex">
-<link rel="stylesheet" href="swappr.css">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="logo.png">
+<link rel="stylesheet" href="swappr.css?v=8">
 <script>try{var t=JSON.parse(localStorage.getItem('swappr-theme-v1'));document.documentElement.dataset.theme=(t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches))?'dark':'light';}catch(e){}</script>
 </head>
 <body>
 <main id="app"><noscript><p class="notice">Per usare Swappr serve JavaScript attivo nel browser.</p></noscript></main>
-<script src="swappr.js"></script>
+<script src="swappr.js?v=8"></script>
 <script>
 const S=Swappr,el=S.el,P=new URLSearchParams(location.search),app=document.getElementById('app');
 const who=P.get('c'),tab=(P.get('t')==='msg'||who)?'msg':'notif';
@@ -22,11 +25,13 @@ function tabs(){
 function notifs(){
   const ns=S.notifs();
   if(!ns.length){app.appendChild(el('div','empty','Nessuna notifica.'));return;}
-  const all=el('button','btn small ghost','Segna tutto come letto');all.type='button';all.style.marginBottom='8px';
-  all.onclick=()=>{ns.forEach(n=>{n.read=true;});S.saveNotifs(ns);location.reload();};app.appendChild(all);
+  if(ns.some(n=>!n.read)){
+    const all=el('button','btn small ghost','Segna tutto come letto');all.type='button';all.style.marginBottom='8px';
+    all.onclick=()=>{ns.forEach(n=>{n.read=true;});S.saveNotifs(ns);location.reload();};app.appendChild(all);
+  }
   ns.forEach(n=>{
     const a=el('a','item'+(n.read?'':' unread'));a.href=n.href||'messaggi.html';
-    const ic=el('span','av');ic.innerHTML=S.IC.bell;
+    const ic=el('span','av ico');ic.innerHTML=S.IC.bell;
     const tx=el('span','tx');tx.append(el('span','',n.text),el('small','',S.when(n.t)));
     a.append(ic,tx);if(!n.read)a.appendChild(el('span','dot'));
     a.onclick=()=>{n.read=true;S.saveNotifs(ns);};app.appendChild(a);
@@ -38,26 +43,27 @@ function convs(){
   cs.forEach(c=>{
     const last=c.msgs[c.msgs.length-1],a=el('a','item'+(c.unread?' unread':''));a.href='messaggi.html?c='+encodeURIComponent(c.with);
     const tx=el('span','tx');tx.append(el('span','',c.with),el('small','',last?last.text:''));
-    a.append(el('span','av',c.with[0].toUpperCase()),tx);if(c.unread)a.appendChild(el('span','dot'));app.appendChild(a);
+    a.append(S.avatar(c.with),tx);if(c.unread)a.appendChild(el('span','dot'));app.appendChild(a);
   });
 }
 function thread(){
   const cs=S.convs();let c=cs.find(x=>x.with===who);
   if(!c){c={with:who,msgs:[],unread:0};cs.unshift(c);}
   c.unread=0;S.saveConvs(cs);
-  const back=el('a','sub','← Messaggi');back.href='messaggi.html?t=msg';app.appendChild(back);
-  app.appendChild(el('h1','',who));
+  app.appendChild(S.back('messaggi.html?t=msg','Messaggi'));
+  const ph=el('div','phead');ph.append(S.avatar(who),el('h1','',who));ph.style.marginBottom='12px';app.appendChild(ph);
   const box=el('div','chat');box.setAttribute('role','log');app.appendChild(box);
   c.msgs.forEach(m=>{
     const b=el('div','bubble '+(m.from==='sistema'?'sys':m.from==='me'?'me':''),m.text);
     if(m.from!=='sistema')b.appendChild(el('small','',S.when(m.t)));box.appendChild(b);
   });
   box.scrollTop=box.scrollHeight;
-  const f=el('form','chat-form'),i=document.createElement('input');i.maxLength=300;i.placeholder='Scrivi un messaggio…';i.setAttribute('aria-label','Messaggio');
-  const re=(P.get('re')||'').slice(0,60);if(re)i.value=S.t(P.get('m')==='w'?'Ciao! Ho la carta '+re+' che cerchi. Ti va di scambiare?':'Ciao! Mi interessa la tua carta '+re+'. Ti va di scambiarla?');
+  const f=el('form','chat-form'),i=document.createElement('input');i.maxLength=300;i.placeholder='Scrivi un messaggio';i.setAttribute('aria-label','Messaggio');
+  const re=(P.get('re')||'').slice(0,60),en=S.lang==='en';
+  if(re)i.value=P.get('m')==='w'?(en?'Hi! I have the '+re+' card you are looking for. Want to swap?':'Ciao! Ho la carta '+re+' che cerchi. Ti va di scambiare?'):(en?'Hi! I am interested in your '+re+' card. Want to swap it?':'Ciao! Mi interessa la tua carta '+re+'. Ti va di scambiarla?');
   const bt=el('button','btn small','Invia');bt.type='submit';f.append(i,bt);
   f.onsubmit=e=>{e.preventDefault();const v=i.value.trim();if(!v)return;S.say(who,'me',v,false);location.reload();};
-  app.append(f,el('p','sub','Anteprima: i messaggi restano su questo dispositivo.'));
+  app.append(f,el('p','note','I messaggi restano su questo dispositivo finché gli account non sono attivi.'));
 }
 if(who)thread();else{tabs();tab==='msg'?convs():notifs();}
 </script>

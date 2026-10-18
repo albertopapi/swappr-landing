@@ -1,25 +1,29 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Pagina non trovata - Swappr</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="/logo.png">
+<link rel="stylesheet" href="/swappr.css?v=8">
 <style>
-:root{color-scheme:light;--bg:#fff;--card:#fff;--paper:#f6f3ec;--ink:#17130f;--mut:#6b655b;--soft:#e6e0d3;--bd:#17130f;--acc:#2b4eff;--accl:#e9edff;--sun:#ffd23f;--mk:#ffd23f;--coral:#ff5a4e;--on-sun:#17130f;--on-acc:#fff;--inv-bg:#17130f;--inv-fg:#fff;--body2:#3d372f;--okbg:#d8f5e8;--okfg:#0b6b45;--infofg:#1b36c4;--danger:#c1362b;--sk1:#efeae0;--sk2:#faf7f0;--sh:4px 4px 0 var(--bd);--sh2:2px 2px 0 var(--bd);--serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;--sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
-[data-theme="dark"]{color-scheme:dark;--bg:#14110e;--card:#1c1814;--paper:#241f19;--ink:#f4efe6;--mut:#a79f92;--soft:#3a332b;--bd:#d6cdbb;--acc:#7d95ff;--accl:#252c52;--mk:rgba(255,210,63,.32);--coral:#ff6b5e;--on-acc:#0b1030;--inv-bg:#f4efe6;--inv-fg:#14110e;--body2:#cdc5b6;--okbg:#17382a;--okfg:#7be0b0;--infofg:#a9b8ff;--danger:#ff8a80;--sk1:#2a251f;--sk2:#34302a}
-*{margin:0;padding:0;box-sizing:border-box;font-family:var(--sans)}
-body{background:var(--bg);color:var(--ink);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px}
-@keyframes spin{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg) translateY(-6px)}}
-h1{font-family:var(--serif);font-size:5rem;display:inline-block;animation:spin 2.4s ease-in-out infinite;background:linear-gradient(var(--mk),var(--mk)) no-repeat 0 88%/100% 38%}
-p{color:var(--mut);margin:14px 0 26px}
-a{background:var(--acc);color:var(--on-acc);text-decoration:none;font-weight:700;padding:12px 24px;border-radius:12px;border:2px solid var(--bd);box-shadow:3px 3px 0 var(--bd);display:inline-block}
-a:active{transform:translate(3px,3px);box-shadow:none}
-@media(prefers-reduced-motion:reduce){h1{animation:none}}
+body{padding-bottom:0}
+.nf{margin:0 auto;padding:16vh 20px 40px;text-align:center;max-width:460px}
+.nf img{display:block;margin:0 auto 22px;height:56px;width:auto}
+.nf h1{margin-bottom:8px}
+.nf p{color:var(--mut);margin-bottom:24px}
 </style>
 <script>try{var t=JSON.parse(localStorage.getItem('swappr-theme-v1'));document.documentElement.dataset.theme=(t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches))?'dark':'light';}catch(e){}</script>
 </head>
 <body>
-<h1>404</h1>
-<p>Questa pagina non esiste o è stata spostata.</p>
-<a href="/">Torna alla home</a>
+<main class="nf">
+  <img src="/logo.png" alt="Swappr" width="56" height="56">
+  <h1>Pagina non trovata</h1>
+  <p>Questa pagina non esiste o è stata spostata.</p>
+  <a class="btn" href="/">Torna alla home</a>
+</main>
+<script>try{if(JSON.parse(localStorage.getItem('swappr-lang-v1'))==='en'){document.documentElement.lang='en';document.title='Page not found - Swappr';document.querySelector('h1').textContent='Page not found';document.querySelector('.nf p').textContent='This page does not exist or has been moved.';document.querySelector('.btn').textContent='Back to home';}}catch(e){}</script>
 </body>
 </html>

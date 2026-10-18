@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Swappr - La Piattaforma per lo Swap di Carte Collezionabili</title>
 <meta name="description" content="Swappr è la piattaforma italiana per scambiare carte collezionabili con verifica delle condizioni. Si parte dalle carte Pokémon: iscriviti alla lista d'attesa per la Beta.">
 <meta property="og:type" content="website">
@@ -10,100 +10,105 @@
 <meta property="og:description" content="Trova le carte che cerchi, scambia i tuoi doppi. Iscriviti alla Beta e ottieni il badge Founder.">
 <meta property="og:image" content="https://swappr.org/logo.png">
 <meta property="og:locale" content="it_IT">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="logo.png">
+<link rel="stylesheet" href="swappr.css?v=8">
 <style>
-:root{color-scheme:light;--bg:#fff;--card:#fff;--paper:#f6f3ec;--ink:#17130f;--mut:#6b655b;--soft:#e6e0d3;--bd:#17130f;--acc:#2b4eff;--accl:#e9edff;--sun:#ffd23f;--mk:#ffd23f;--coral:#ff5a4e;--on-sun:#17130f;--on-acc:#fff;--inv-bg:#17130f;--inv-fg:#fff;--body2:#3d372f;--okbg:#d8f5e8;--okfg:#0b6b45;--infofg:#1b36c4;--danger:#c1362b;--sk1:#efeae0;--sk2:#faf7f0;--sh:4px 4px 0 var(--bd);--sh2:2px 2px 0 var(--bd);--serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;--sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
-[data-theme="dark"]{color-scheme:dark;--bg:#14110e;--card:#1c1814;--paper:#241f19;--ink:#f4efe6;--mut:#a79f92;--soft:#3a332b;--bd:#d6cdbb;--acc:#7d95ff;--accl:#252c52;--mk:rgba(255,210,63,.32);--coral:#ff6b5e;--on-acc:#0b1030;--inv-bg:#f4efe6;--inv-fg:#14110e;--body2:#cdc5b6;--okbg:#17382a;--okfg:#7be0b0;--infofg:#a9b8ff;--danger:#ff8a80;--sk1:#2a251f;--sk2:#34302a}
-
-*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
-
-html,body{background:var(--bg)}
-body{color:var(--ink);display:flex;flex-direction:column;min-height:100vh;text-align:center}
-h1,h2,h3{font-family:var(--serif)}
-@keyframes up{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
-@keyframes mark{to{background-size:100% 42%}}
-@keyframes bob{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
-@keyframes wig{0%,100%{transform:rotate(0)}25%{transform:rotate(-9deg)}75%{transform:rotate(9deg)}}
-@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
-main{display:flex;flex-direction:column;align-items:center;width:100%;padding:20px 20px 0}
-main>*{animation:up .6s cubic-bezier(.2,.7,.2,1) both}main>*:nth-child(3){animation-delay:.08s}main>*:nth-child(4){animation-delay:.14s}main>*:nth-child(5){animation-delay:.2s}main>*:nth-child(n+6){animation-delay:.26s}
-.top{align-self:flex-end;display:flex;gap:14px;align-items:center;margin-bottom:10px}
-.top a{color:var(--ink);font-weight:700;text-decoration:none;border-bottom:3px solid var(--sun)}
-.logo{max-width:170px;width:100%;height:auto;margin-bottom:26px}.logo:hover{animation:wig .6s}
-h1{font-size:2.7rem;font-weight:800;margin-bottom:16px;line-height:1.1;letter-spacing:-.02em}
-h1 span{background:linear-gradient(var(--mk),var(--mk)) no-repeat 0 90%/0% 38%;animation:mark .8s .5s forwards}
-p.subtitle{font-size:1.15rem;color:var(--mut);max-width:620px;margin-bottom:30px;line-height:1.55}
-.signup{width:100%;max-width:440px;margin-bottom:18px}
-.form-row{display:flex;gap:10px;width:100%}
+.lp-top{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;max-width:1040px;margin:0 auto;padding:14px 16px}
+.lp-top img{display:block;height:48px;width:auto;max-width:200px}
+.lp-nav{display:flex;align-items:center;gap:8px}
+.lp h1,.lp h2{text-wrap:balance}
+.lp-hero{display:grid;gap:36px;align-items:center;padding:24px 0 48px}
+.lp-hero h1{font-size:clamp(2rem,6.4vw,3.1rem);line-height:1.08;letter-spacing:-.028em;margin:0 0 18px}
+.lp-sub{font-size:1.08rem;line-height:1.55;color:var(--body2);max-width:50ch;margin-bottom:26px}
+.signup{max-width:470px}
+.frow{display:flex;gap:8px}
+.signup input[type=email]{flex:1;min-width:0;height:48px;padding:0 16px;border-radius:12px;font-size:1rem}
+.signup .btn{height:48px;padding:0 24px;font-size:1rem;border-radius:12px}
+.consent{display:flex;align-items:flex-start;gap:10px;margin-top:14px;font-size:.82rem;line-height:1.5;font-weight:400;color:var(--mut)}
+.consent input{width:18px;height:18px;margin-top:2px;flex-shrink:0;accent-color:var(--acc)}
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
-input[type=email]{flex:1;min-width:0;padding:14px 18px;border-radius:12px;border:2px solid var(--bd);background:var(--card);color:var(--ink);font-size:1rem}
-input[type=email]:focus{outline:none;box-shadow:3px 3px 0 var(--bd)}
-button.go{padding:14px 24px;border-radius:12px;border:2px solid var(--bd);background:var(--acc);color:var(--on-acc);font-weight:700;font-size:1rem;cursor:pointer;box-shadow:3px 3px 0 var(--bd);transition:transform .12s,box-shadow .12s}
-button.go:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--bd)}button.go:active{transform:translate(3px,3px);box-shadow:none}
-.consent{display:flex;align-items:flex-start;gap:8px;margin-top:12px;text-align:left;font-size:.8rem;color:var(--mut);line-height:1.4}
-.consent input{margin-top:3px;flex-shrink:0;accent-color:var(--acc)}.consent a{color:var(--acc);font-weight:600}
-.early-badge{display:inline-block;background:var(--sun);border:2px solid var(--bd);color:var(--on-sun);padding:7px 16px;border-radius:20px;font-size:.88rem;font-weight:700;margin-bottom:40px;box-shadow:2px 2px 0 var(--bd);animation:up .6s .3s both,bob 3s 1s ease-in-out infinite}
-.games-bar{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-bottom:54px}
-.game-badge{background:var(--paper);border:2px solid var(--bd);padding:8px 16px;border-radius:10px;font-size:.9rem;font-weight:700}
-.section-title{font-size:1.9rem;font-weight:800;margin-bottom:28px}
-.how,.faq-section{max-width:900px;width:100%;margin-bottom:56px}
-.steps,.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:22px;max-width:900px;width:100%;margin-bottom:56px}
-.step-card,.feature-card{background:var(--card);padding:24px 20px;border-radius:18px;border:2px solid var(--bd);box-shadow:4px 4px 0 var(--bd);transition:transform .2s,box-shadow .2s}
-.step-card:hover,.feature-card:hover{transform:translate(-2px,-4px) rotate(-.6deg);box-shadow:6px 8px 0 var(--bd)}
-.how .steps{margin-bottom:0}
-.step-number{display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;background:var(--sun);border:2px solid var(--bd);border-radius:50%;margin-bottom:14px;font-weight:800;font-family:var(--serif);color:var(--on-sun)}
-.step-card h3{font-size:1.25rem;margin-bottom:10px}.step-card p{font-size:.95rem;color:var(--mut);line-height:1.55}
-.feature-card{text-align:left}.feature-card h3{font-size:1.15rem;margin-bottom:8px}.feature-card p{font-size:.95rem;color:var(--mut);line-height:1.55}
-.faq-section{text-align:left;margin-bottom:70px}.faq-section .section-title{text-align:center}
-.faq-item{background:var(--paper);border:2px solid var(--bd);border-radius:14px;margin-bottom:14px;padding:18px 22px}
-.faq-item h3{font-size:1.1rem;margin-bottom:8px}.faq-item p{font-size:.95rem;color:var(--body2);line-height:1.55}
-footer{width:100%;background:var(--paper);border-top:2px solid var(--bd);padding:28px 20px;margin-top:auto;color:var(--mut);font-size:.9rem}
-footer a{color:var(--ink);font-weight:700;text-decoration:none;border-bottom:2px solid var(--sun)}
-.footer-links{margin-top:10px;display:flex;flex-wrap:wrap;justify-content:center;gap:20px}
-@media(max-width:520px){h1{font-size:2rem}p.subtitle{font-size:1.05rem}.form-row{flex-direction:column}button.go{width:100%}.section-title{font-size:1.5rem}}
+.lp-note{margin-top:18px;font-size:.9rem;color:var(--mut);line-height:1.5}
+.lp-note+.lp-note{margin-top:2px}
+.lp-art .cover{max-width:420px;margin:0 auto;border-radius:18px}
+@keyframes pocket{from{opacity:0;transform:scale(.55)}to{opacity:.88;transform:none}}
+@media(prefers-reduced-motion:no-preference){.lp-art .bp.on{transform-box:fill-box;transform-origin:center;animation:pocket .35s ease-out both}}
+.lp-sec{padding:46px 0;border-top:1px solid var(--soft)}
+.lp-sec>h2{font-size:1.55rem;letter-spacing:-.02em;margin-bottom:26px}
+.steps{list-style:none;display:grid;gap:26px}
+.steps li{display:grid;grid-template-columns:32px 1fr;column-gap:14px}
+.steps .n{grid-row:span 2;width:32px;height:32px;border-radius:50%;border:1.5px solid var(--bd);display:flex;align-items:center;justify-content:center;font-weight:650;font-size:.9rem;color:var(--body2)}
+.steps h3{font-size:1.08rem;margin-bottom:6px}
+.steps p{color:var(--body2);line-height:1.55;max-width:44ch}
+.lp-two{display:grid;gap:20px}
+.feat dt{margin-top:24px;font-size:1.05rem}.feat dt:first-child{margin-top:0}.feat dd{margin-top:5px;line-height:1.55;color:var(--body2)}
+.lp-sec details.acc p{line-height:1.6}
+@media(min-width:760px){.steps{grid-template-columns:repeat(3,1fr);gap:36px}.steps li{display:block}.steps .n{margin-bottom:14px}}
+@media(min-width:860px){.lp-hero{grid-template-columns:1.12fr .88fr;gap:64px;padding:56px 0 68px}.lp-two{grid-template-columns:1fr 1.5fr;gap:64px}}
+@media(max-width:520px){.frow{flex-direction:column}.signup input[type=email]{flex:none;width:100%}.signup .btn{width:100%}}
+footer .links{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 22px;margin-top:8px}footer .links a{color:var(--body2)}
 </style>
 <script>try{var t=JSON.parse(localStorage.getItem('swappr-theme-v1'));document.documentElement.dataset.theme=(t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches))?'dark':'light';}catch(e){}</script>
 </head>
 <body data-shell="none">
-<main>
-  <div class="top"><a href="index.html">Entra nell'app →</a><span id="themeslot"></span><span id="langslot"></span></div>
-  <img src="logo.png" alt="Swappr" class="logo" width="180" height="180">
-  <h1>Trova le carte che cerchi, <span>scambia i tuoi doppi.</span></h1>
-  <p class="subtitle">Scambiare carte da remoto in Italia è difficile: con Swappr trovi chi ha le carte che cerchi, anche lontano da te, con verifica delle condizioni. Si parte dalle carte Pokémon.</p>
-  <form class="signup" action="https://formspree.io/f/xqpeqryy" method="POST">
-    <div class="form-row">
-      <label for="email" class="sr-only">Indirizzo email</label>
-      <input type="email" id="email" name="email" placeholder="La tua email per la Beta" autocomplete="email" required>
-      <button class="go" type="submit">Unisciti</button>
+<header class="lp-top">
+  <a href="beta.html"><img src="logo.png" alt="Swappr" width="48" height="48"></a>
+  <nav class="lp-nav" aria-label="Menu"><a class="btn small ghost" href="index.html">Entra nell'app</a><span id="langslot"></span><span id="themeslot"></span></nav>
+</header>
+<main class="lp">
+  <section class="lp-hero">
+    <div>
+      <h1>Trova le carte che cerchi, scambia i tuoi doppi.</h1>
+      <p class="lp-sub">Scambiare carte da remoto in Italia è difficile: con Swappr trovi chi ha le carte che cerchi, anche lontano da te, con verifica delle condizioni. Si parte dalle carte Pokémon.</p>
+      <form class="signup" action="https://formspree.io/f/xqpeqryy" method="POST">
+        <div class="frow">
+          <label for="email" class="sr-only">Indirizzo email</label>
+          <input type="email" id="email" name="email" placeholder="La tua email per la Beta" autocomplete="email" required>
+          <button class="btn" type="submit">Unisciti</button>
+        </div>
+        <label class="consent"><input type="checkbox" name="consenso_privacy" value="si" required><span>Acconsento al trattamento della mia email per ricevere l'invito alla Beta e aggiornamenti su Swappr, come descritto nell'<a href="privacy.html">informativa privacy</a>.</span></label>
+      </form>
+      <p class="lp-note">I primi 500 iscritti otterranno il badge Founder e vantaggi esclusivi.</p>
+      <p class="lp-note">Altri giochi in arrivo.</p>
     </div>
-    <label class="consent"><input type="checkbox" name="consenso_privacy" value="si" required><span>Acconsento al trattamento della mia email per ricevere l'invito alla Beta e aggiornamenti su Swappr, come descritto nell'<a href="privacy.html">informativa privacy</a>.</span></label>
-  </form>
-  <div class="early-badge">🎁 I primi 500 iscritti otterranno il badge Founder e vantaggi esclusivi</div>
-  <div class="games-bar"><div class="game-badge">⚡ Pokémon TCG</div><div class="game-badge">Altri giochi in arrivo</div></div>
-  <section class="how">
-    <h2 class="section-title">Come funziona Swappr</h2>
-    <div class="steps">
-      <div class="step-card"><div class="step-number">1</div><h3>Wishlist e binder di scambio</h3><p>Metti in wishlist le carte che desideri e nel binder quelle che vuoi scambiare.</p></div>
-      <div class="step-card"><div class="step-number">2</div><h3>Match intelligente</h3><p>Swappr incrocia wishlist e binder di tutti e propone gli scambi possibili. Oppure cerchi una carta e scrivi a chi la offre.</p></div>
-      <div class="step-card"><div class="step-number">3</div><h3>Verifica e consegna</h3><p>Le carte passano da Swappr: controlliamo che le condizioni siano rispettate e le inoltriamo a ciascuna parte.</p></div>
-    </div>
+    <div class="lp-art" aria-hidden="true"><div class="cover" id="art"></div></div>
   </section>
-  <section class="features">
-    <div class="feature-card"><h3>🃏 Tutto il catalogo Pokémon</h3><p>Tutte le carte del catalogo Pokémon TCG, da aggiungere a binder e wishlist.</p></div>
-    <div class="feature-card"><h3>🛡️ Verifica e intermediazione</h3><p>Controlliamo noi le condizioni delle carte e facciamo da tramite, così nessuno spedisce al buio.</p></div>
-    <div class="feature-card"><h3>💬 Scambi e messaggi</h3><p>Proponi lo scambio, segui ogni passaggio e scrivi all'altro collezionista.</p></div>
+
+  <section class="lp-sec">
+    <h2>Come funziona Swappr</h2>
+    <ol class="steps">
+      <li><span class="n">1</span><h3>Wishlist e binder di scambio</h3><p>Metti in wishlist le carte che desideri e nel binder quelle che vuoi scambiare.</p></li>
+      <li><span class="n">2</span><h3>Match intelligente</h3><p>Swappr incrocia wishlist e binder di tutti e propone gli scambi possibili. Oppure cerchi una carta e scrivi a chi la offre.</p></li>
+      <li><span class="n">3</span><h3>Verifica e consegna</h3><p>Le carte passano da Swappr: controlliamo che le condizioni siano rispettate e le inoltriamo a ciascuna parte.</p></li>
+    </ol>
   </section>
-  <section class="faq-section">
-    <h2 class="section-title">Domande Frequenti</h2>
-    <div class="faq-item"><h3>Come funziona la protezione contro le truffe?</h3><p>Le carte non viaggiano da sconosciuto a sconosciuto: passano da Swappr, che verifica che le condizioni corrispondano a quanto dichiarato e le inoltra solo se tutto è in ordine. Il servizio partirà con la Beta: tempi e costi saranno comunicati prima del lancio.</p></div>
-    <div class="faq-item"><h3>Come si decide se uno scambio è equo?</h3><p>Ognuno può controllare il valore di riferimento delle carte su Cardmarket: Swappr si occupa di far incontrare binder e wishlist e di verificare le carte.</p></div>
-    <div class="faq-item"><h3>Quando sarà disponibile la Beta?</h3><p>Stiamo rifinendo gli ultimi dettagli. Gli iscritti alla lista d'attesa riceveranno l'invito prioritario per accedere prima del lancio ufficiale.</p></div>
+
+  <section class="lp-sec lp-two">
+    <h2>Cosa trovi in Swappr</h2>
+    <dl class="feat">
+      <dt>Tutto il catalogo Pokémon</dt><dd>Tutte le carte del catalogo Pokémon TCG, da aggiungere a binder e wishlist.</dd>
+      <dt>Verifica e intermediazione</dt><dd>Controlliamo noi le condizioni delle carte e facciamo da tramite, così nessuno spedisce al buio.</dd>
+      <dt>Scambi e messaggi</dt><dd>Proponi lo scambio, segui ogni passaggio e scrivi all'altro collezionista.</dd>
+    </dl>
+  </section>
+
+  <section class="lp-sec">
+    <h2>Domande Frequenti</h2>
+    <details class="acc"><summary>Come funziona la protezione contro le truffe?</summary><p>Le carte non viaggiano da sconosciuto a sconosciuto: passano da Swappr, che verifica che le condizioni corrispondano a quanto dichiarato e le inoltra solo se tutto è in ordine. Il servizio partirà con la Beta: tempi e costi saranno comunicati prima del lancio.</p></details>
+    <details class="acc"><summary>Come si decide se uno scambio è equo?</summary><p>Ognuno può controllare il valore di riferimento delle carte su Cardmarket: Swappr si occupa di far incontrare binder e wishlist e di verificare le carte.</p></details>
+    <details class="acc"><summary>Quando sarà disponibile la Beta?</summary><p>Stiamo rifinendo gli ultimi dettagli. Gli iscritti alla lista d'attesa riceveranno l'invito prioritario per accedere prima del lancio ufficiale.</p></details>
   </section>
 </main>
 <footer>
   <p>© 2026 Swappr. Tutti i diritti riservati.</p>
-  <div class="footer-links"><a href="mailto:info@swappr.org">info@swappr.org</a><a href="privacy.html">Informativa privacy</a><a href="index.html">Apri l'app</a></div>
+  <div class="links"><a href="mailto:info@swappr.org">info@swappr.org</a><a href="privacy.html">Informativa privacy</a><a href="index.html">Apri l'app</a></div>
 </footer>
-<script src="swappr.js"></script>
-<script>Swappr.langButton(document.getElementById('langslot'));Swappr.themeButton(document.getElementById('themeslot'));</script>
+<script src="swappr.js?v=8"></script>
+<script>
+const S=Swappr;
+S.langButton(document.getElementById('langslot'));S.themeButton(document.getElementById('themeslot'));
+const art=document.getElementById('art');art.innerHTML=S.binderArt(14);
+art.querySelectorAll('.bp.on').forEach((r,i)=>{r.style.animationDelay=(160+i*70)+'ms';});
+</script>
 </body>
 </html>

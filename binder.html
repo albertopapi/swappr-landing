@@ -1,61 +1,64 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Binder - Swappr</title>
 <meta name="description" content="I tuoi binder di scambio su Swappr: le carte che vuoi scambiare.">
-<link rel="stylesheet" href="swappr.css">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="logo.png">
+<link rel="preconnect" href="https://images.pokemontcg.io">
+<link rel="preconnect" href="https://api.pokemontcg.io" crossorigin>
+<link rel="stylesheet" href="swappr.css?v=8">
 <script>try{var t=JSON.parse(localStorage.getItem('swappr-theme-v1'));document.documentElement.dataset.theme=(t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches))?'dark':'light';}catch(e){}</script>
 </head>
 <body>
 <main id="app"><noscript><p class="notice">Per usare Swappr serve JavaScript attivo nel browser.</p></noscript></main>
-<script src="swappr.js"></script>
+<script src="swappr.js?v=8"></script>
 <script>
 const S=Swappr,el=S.el,P=new URLSearchParams(location.search),app=document.getElementById('app');
 const bid=P.get('b'),who=P.get('u');
 const link=(href,text,cls)=>{const a=el('a',cls||'',text);a.href=href;return a;};
 const head=(t,href)=>{const h=el('h2','sec');h.appendChild(href?link(href,t,'plain'):el('span','',t));app.appendChild(h);};
-function cover(name,count,href){
-  const a=el('a','bind');a.href=href;const c=el('div','cover'),i=el('span','ic');i.innerHTML=S.IC.book;
-  c.append(i,el('span','cnt',String(count)));a.append(c,el('span','bn',name));return a;
-}
+const mk=(t,fn,cls)=>{const x=el('button','btn small'+(cls?' '+cls:''),t);x.type='button';x.onclick=fn;return x;};
 function list(){
-  head('I tuoi binder di scambio');
+  app.appendChild(el('h1','','I tuoi binder'));
   app.appendChild(el('p','sub','Metti nel binder le carte che vuoi scambiare: Swappr le propone a chi le cerca nella sua wishlist.'));
-  const r=el('div','rail');
-  S.binders().forEach(b=>r.appendChild(cover(b.name,b.cards.reduce((s,e)=>s+e.qty,0),'binder.html?b='+b.id)));
-  const nb=el('button','bind new');nb.type='button';nb.append(el('div','cover','＋'),el('span','bn','Nuovo binder'));
-  nb.onclick=()=>{const n=prompt(S.t('Nome del nuovo binder'),'');if(n&&n.trim()){location.href='binder.html?b='+S.newBinder(n).id;}};
-  r.appendChild(nb);app.appendChild(r);
+  const mine=S.binders().map(b=>S.cover(b.name,b.cards.reduce((s,e)=>s+e.qty,0),b.cards.length,'binder.html?b='+b.id));
+  const nb=el('button','bind new'),nc=el('span','cover');nb.type='button';nc.innerHTML=S.IC.plus;nb.append(nc,el('span','bn','Nuovo binder'));
+  nb.onclick=async()=>{const n=await S.ask('Nuovo binder','Nome del binder','','Crea');if(n)location.href='binder.html?b='+S.newBinder(n).id;};
+  mine.push(nb);
+  const r=el('div');r.style.marginTop='14px';r.appendChild(S.rail(mine));app.appendChild(r);
   S.DEMO.forEach(u=>{
     head('Binder di '+u.u,'profilo.html?u='+encodeURIComponent(u.u));
-    const rr=el('div','rail');
-    u.b.forEach((b,i)=>rr.appendChild(cover(b[0],b[1].length,'binder.html?u='+encodeURIComponent(u.u)+'&b='+i)));
-    app.appendChild(rr);
+    app.appendChild(S.rail(u.b.map((b,i)=>S.cover(S.demoName(b[0]),b[1].length,b[1].length,'binder.html?u='+encodeURIComponent(u.u)+'&b='+i))));
   });
-  app.appendChild(el('p','sub','Anteprima: i binder degli altri utenti sono dimostrativi.'));
+  app.appendChild(el('p','note','I binder degli altri utenti sono di esempio finché gli account non sono attivi.'));
 }
 function mine(){
   const b0=S.binders().find(x=>x.id===bid);
   if(!b0){location.replace('binder.html');return;}
-  app.appendChild(link('binder.html','← Binder','sub'));
+  app.appendChild(S.back('binder.html','Binder'));
   app.appendChild(el('h1','',b0.name));
-  const mk=(t,fn,cls)=>{const x=el('button','btn small'+(cls?' '+cls:''),t);x.type='button';x.onclick=fn;return x;};
-  const act=el('div','row');act.style.margin='6px 0 14px';
+  const act=el('div','row');act.style.margin='0 0 16px';
   act.append(
     mk('Aggiungi carte',()=>S.picker('Aggiungi carte',c=>{S.addToBinder(bid,c,1,'NM');draw();})),
-    mk('Rinomina',()=>{const all=S.binders(),x=all.find(y=>y.id===bid),n=prompt(S.t('Nome del binder'),x.name);if(n&&n.trim()){x.name=n.trim().slice(0,30);S.saveBinders(all);location.reload();}},'ghost'),
-    mk('Elimina',()=>{if(confirm(S.t('Eliminare questo binder?'))){S.saveBinders(S.binders().filter(y=>y.id!==bid));location.href='binder.html';}},'danger'));
+    mk('Rinomina',async()=>{const all=S.binders(),x=all.find(y=>y.id===bid),n=await S.ask('Rinomina il binder','Nome del binder',x.name,'Salva');if(n){x.name=n.slice(0,30);S.saveBinders(all);location.reload();}},'ghost'),
+    mk('Elimina',async()=>{if(await S.confirm('Eliminare questo binder?','Il binder e le carte che contiene vengono rimossi.','Elimina',true)){S.saveBinders(S.binders().filter(y=>y.id!==bid));location.href='binder.html';}},'danger'));
   app.appendChild(act);
   const grid=el('div','cards');app.appendChild(grid);
+  const ib=(svg,label,fn)=>{const x=el('button');x.type='button';x.innerHTML=svg;x.setAttribute('aria-label',label);x.onclick=fn;return x;};
+  const MINUS='<svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg>',CROSS='<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>';
   function draw(){
     const all=S.binders(),b=all.find(x=>x.id===bid);grid.replaceChildren();
     if(!b.cards.length){grid.appendChild(el('div','empty','Questo binder è vuoto. Usa «Aggiungi carte» per iniziare.'));return;}
-    b.cards.forEach(e=>{
-      const cell=el('div','cell');cell.appendChild(S.tile(e.c,{badge:'×'+e.qty+' · '+e.cond}));
+    b.cards.forEach((e,k)=>{
+      const cell=el('div','cell');cell.appendChild(S.tile(e.c,{badge:e.qty+'x '+e.cond,eager:k<12,heart:false}));
       const ctl=el('div','ctl');
-      const bt=(t,al,fn)=>{const x=el('button','',t);x.type='button';x.setAttribute('aria-label',al);x.onclick=fn;return x;};
-      ctl.append(bt('−','Diminuisci',()=>{e.qty=Math.max(1,e.qty-1);S.saveBinders(all);draw();}),bt('+','Aumenta',()=>{e.qty=Math.min(99,e.qty+1);S.saveBinders(all);draw();}),bt('✕','Rimuovi',()=>{b.cards.splice(b.cards.indexOf(e),1);S.saveBinders(all);draw();}));
+      ctl.append(
+        ib(MINUS,'Diminuisci',()=>{e.qty=Math.max(1,e.qty-1);S.saveBinders(all);draw();}),
+        ib(S.IC.plus,'Aumenta',()=>{e.qty=Math.min(99,e.qty+1);S.saveBinders(all);draw();}),
+        ib(CROSS,'Rimuovi',()=>{b.cards.splice(b.cards.indexOf(e),1);S.saveBinders(all);draw();}));
       cell.appendChild(ctl);grid.appendChild(cell);
     });
   }
@@ -64,11 +67,14 @@ function mine(){
 async function demo(){
   const u=S.DEMO.find(x=>x.u===who),b=u&&u.b[+bid];
   if(!b){location.replace('binder.html');return;}
-  app.appendChild(link('binder.html','← Binder','sub'));
-  app.appendChild(el('h1','',b[0]+' · di '+u.u));
-  app.appendChild(el('p','sub','Utente dimostrativo'));
-  const grid=el('div','cards');grid.style.marginTop='12px';app.appendChild(grid);
-  try{const m=await S.byIds(b[1]);b[1].forEach(id=>{if(m[id])grid.appendChild(S.tile(m[id]));});}catch(e){grid.appendChild(el('div','empty',S.NODATA));}
+  app.appendChild(S.back('binder.html','Binder'));
+  app.appendChild(el('h1','',S.demoName(b[0])));
+  const row=el('div','row'),w=el('a','who');w.href='profilo.html?u='+encodeURIComponent(u.u);w.append(S.avatar(u.u,{sm:true}),el('span','',u.u));
+  row.append(w,el('span','tag info','Utente di esempio'));app.appendChild(row);
+  const grid=el('div','cards');grid.style.marginTop='16px';app.appendChild(grid);
+  const rm=S.skel(grid,Math.min(b[1].length,12));
+  try{const m=await S.byIds(b[1]);rm();b[1].forEach(id=>{if(m[id])grid.appendChild(S.tile(m[id],{eager:true}));});}
+  catch(e){rm();grid.appendChild(S.failBox());}
 }
 who?demo():bid?mine():list();
 </script>
