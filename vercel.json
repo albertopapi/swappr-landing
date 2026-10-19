@@ -12,20 +12,13 @@
         { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()" }
       ]
     },
-    {
-      "source": "/(admin|controllo)\\.html",
-      "headers": [
-        { "key": "X-Robots-Tag", "value": "noindex, nofollow" },
-        { "key": "Cache-Control", "value": "no-store" }
-      ]
-    },
-    {
-      "source": "/(swappr\\.css|beta\\.css|swappr\\.js|swappr-i18n\\.js|js/(.*))",
-      "headers": [{ "key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=604800" }]
-    },
-    {
-      "source": "/catalogo/(.*)",
-      "headers": [{ "key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=604800" }]
-    }
+    { "source": "/admin.html", "headers": [{"key": "X-Robots-Tag", "value": "noindex, nofollow"}, {"key": "Cache-Control", "value": "no-store"}] },
+    { "source": "/controllo.html", "headers": [{"key": "X-Robots-Tag", "value": "noindex, nofollow"}, {"key": "Cache-Control", "value": "no-store"}] },
+    { "source": "/swappr.css", "headers": [{"key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=604800"}] },
+    { "source": "/beta.css", "headers": [{"key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=604800"}] },
+    { "source": "/swappr.js", "headers": [{"key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=604800"}] },
+    { "source": "/swappr-i18n.js", "headers": [{"key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=604800"}] },
+    { "source": "/js/:path*", "headers": [{"key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=604800"}] },
+    { "source": "/catalogo/:path*", "headers": [{"key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=604800"}] }
   ]
 }
