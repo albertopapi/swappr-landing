@@ -5,107 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Scambi - Swappr</title>
 <meta name="description" content="Match e scambi con altri collezionisti, con verifica delle carte da parte di Swappr.">
+<meta name="robots" content="noindex">
 <meta name="theme-color" content="#ffffff">
 <link rel="icon" href="logo.png">
 <link rel="preconnect" href="https://images.pokemontcg.io">
-<link rel="preconnect" href="https://api.pokemontcg.io" crossorigin>
-<link rel="stylesheet" href="swappr.css?v=8">
+<link rel="preconnect" href="https://images.scrydex.com">
+<link rel="stylesheet" href="swappr.css?v=10">
 <script>try{var t=JSON.parse(localStorage.getItem('swappr-theme-v1'));document.documentElement.dataset.theme=(t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches))?'dark':'light';}catch(e){}</script>
 </head>
 <body>
 <main id="app"><noscript><p class="notice">Per usare Swappr serve JavaScript attivo nel browser.</p></noscript></main>
-<script src="swappr.js?v=8"></script>
-<script>
-const S=Swappr,el=S.el,app=document.getElementById('app');
-const names=a=>a.map(c=>c.name).join(', ');
-const mk=(t,fn,cls)=>{const x=el('button','btn small'+(cls?' '+cls:''),t);x.type='button';x.onclick=fn;return x;};
-const stat=(n,l)=>{const s=el('span','sub');s.appendChild(el('b','',String(n)));s.append(' ');s.appendChild(el('span','',l));return s;};
-
-/* carte di esempio: le prime tre in wishlist, le altre nel binder, così compare un match con un utente di esempio */
-async function sample(){
-  const ids=['base1-4','base1-2','base1-10','base1-16','base1-14','base1-58'];let m={};
-  try{m=await S.byIds(ids);}catch(e){return;}
-  ids.slice(0,3).forEach(id=>{if(m[id]&&!S.inWish(id))S.toggleWish(m[id]);});
-  const b=S.binders()[0]||S.newBinder(S.lang==='en'?'My binder':'Il mio binder');
-  ids.slice(3).forEach(id=>{if(m[id])S.addToBinder(b.id,m[id],1,'NM');});
-  render();
-}
-function block(m,map,have){
-  const box=el('section','match'),selR=new Set(m.recv),selG=new Set(m.give);
-  const h=el('h3'),a=el('a','plain','Match con '+m.u);a.href='profilo.html?u='+encodeURIComponent(m.u);h.appendChild(a);box.appendChild(h);
-  const mini=(c,sel)=>{
-    const b=el('button','mini');b.type='button';b.setAttribute('aria-pressed','true');b.setAttribute('aria-label',c.name);
-    const im=S.safe(c.img);if(im){const i=document.createElement('img');i.src=im;i.alt='';i.width=245;i.height=342;i.decoding='async';b.appendChild(i);}else b.textContent=c.name;
-    b.onclick=()=>{const off=sel.has(c.id);off?sel.delete(c.id):sel.add(c.id);b.classList.toggle('off',off);b.setAttribute('aria-pressed',String(!off));};
-    return b;
-  };
-  const row=el('div','mrow'),l=el('div','mside'),r=el('div','mside'),mid=el('span','ic');mid.innerHTML=S.IC.swap;mid.setAttribute('aria-hidden','true');
-  m.recv.forEach(id=>{if(map[id])l.appendChild(mini(map[id],selR));});
-  m.give.forEach(id=>{if(have[id])r.appendChild(mini(have[id],selG));});
-  row.append(l,mid,r);box.appendChild(row);
-  const lab=el('div','mlab');lab.append(el('span','','Tu ricevi'),el('span'),el('span','',m.u+' riceve'));box.appendChild(lab);
-  const go=mk('Proponi scambio',()=>{if(!selR.size||!selG.size)return;S.propose(m.u,[...selG].map(id=>have[id]),[...selR].map(id=>map[id]));render();});
-  go.style.marginTop='14px';box.appendChild(go);return box;
-}
-function trades(){
-  app.appendChild(el('h2','sec','I tuoi scambi'));
-  const ts=S.trades();
-  if(!ts.length){app.appendChild(el('p','sub','Nessuno scambio.'));return;}
-  ts.forEach(t=>{
-    const c=el('section','match');c.appendChild(el('h3','','Scambio con '+t.with));
-    c.appendChild(el('p','sub','Tu ricevi: '+names(t.recv)));
-    c.appendChild(el('p','sub',t.with+' riceve: '+names(t.give)));
-    const st=el('div','row');st.style.margin='12px 0 8px';
-    if(t.status==='Annullato')st.appendChild(el('span','tag warn','Annullato'));
-    else S.FLOW.forEach(f=>st.appendChild(el('span','tag'+(S.FLOW.indexOf(f)<=S.FLOW.indexOf(t.status)?' ok':''),f)));
-    c.appendChild(st);
-    if(S.HELP[t.status])c.appendChild(el('p','sub',S.HELP[t.status]));
-    const row=el('div','row');row.style.marginTop='12px';
-    if(t.status!=='Completato'&&t.status!=='Annullato'){
-      const nx=S.FLOW[S.FLOW.indexOf(t.status)+1];
-      row.append(mk('Segna come: '+nx,()=>{S.setStatus(t.id,nx);render();}),
-        mk('Annulla scambio',async()=>{if(await S.confirm('Annullare questo scambio?','Potrai sempre proporne un altro.','Annulla scambio',true,'Indietro')){S.setStatus(t.id,'Annullato');render();}},'danger'));
-    }
-    const chat=el('a','btn small ghost','Apri chat');chat.href='messaggi.html?c='+encodeURIComponent(t.with);row.appendChild(chat);
-    c.appendChild(row);app.appendChild(c);
-  });
-}
-async function render(){
-  app.replaceChildren();
-  app.appendChild(el('h1','','Scambi'));
-  const have=S.haveCards();
-  const sm=el('div','row');sm.style.gap='18px';sm.append(stat(S.wish().length,'in wishlist'),stat(Object.keys(have).length,'carte diverse nei binder'));app.appendChild(sm);
-  const how=el('details','acc');how.style.marginTop='16px';how.appendChild(el('summary','','Come funziona il match'));
-  ['1. Metti in wishlist le carte che desideri e nei binder quelle che vuoi scambiare.','2. Swappr cerca chi ha le tue carte desiderate e chi cerca le tue.',"3. Se ci sono carte da entrambe le parti, ti propone lo scambio: tu confermi e scrivi all'altro collezionista."].forEach(t=>how.appendChild(el('p','',t)));
-  app.appendChild(how);
-  app.appendChild(el('h2','sec','I tuoi match'));
-  const ms=S.matches(),ps=S.partials();
-  if(!ms.length&&!ps.length){
-    const e=el('div','empty','Nessun match per ora. Aggiungi carte alla wishlist e ai binder: Swappr confronta le tue liste con quelle degli altri collezionisti.');
-    const b=mk('Carica carte di esempio',sample,'ghost');b.style.marginTop='14px';e.append(document.createElement('br'),b);app.appendChild(e);
-  }else{
-    let map={};try{map=await S.byIds([...new Set(ms.concat(ps).flatMap(m=>m.recv))]);}catch(e){}
-    if(!ms.length)app.appendChild(el('p','sub','Nessun match completo per ora.'));
-    ms.forEach(m=>app.appendChild(block(m,map,have)));
-    if(ps.length){
-      app.appendChild(el('h2','sec','Altre occasioni'));
-      app.appendChild(el('p','sub','Utenti che hanno carte della tua wishlist o cercano carte dei tuoi binder: scrivi per concordare uno scambio.'));
-      ps.forEach(m=>{
-        const box=el('section','match');box.style.marginTop='14px';
-        const h=el('h3'),a=el('a','plain',m.u);a.href='profilo.html?u='+encodeURIComponent(m.u);h.appendChild(a);box.appendChild(h);
-        box.appendChild(el('p','sub',m.recv.length?m.u+' ha delle carte della tua wishlist ('+m.recv.length+')':m.u+' cerca delle tue carte ('+m.give.length+')'));
-        const g=el('div','cards');g.style.margin='12px 0';
-        (m.recv.length?m.recv.map(id=>map[id]):m.give.map(id=>have[id])).filter(Boolean).forEach(c=>g.appendChild(S.tile(c,{heart:false})));
-        box.appendChild(g);
-        const w=el('a','btn small','Scrivi a '+m.u);w.href='messaggi.html?c='+encodeURIComponent(m.u);box.appendChild(w);app.appendChild(box);
-      });
-    }
-    app.appendChild(el('p','note','Tocca una carta per escluderla dallo scambio. Swappr verifica le carte prima di inoltrarle.'));
-    const a=el('a','sub','Come funziona la verifica');a.href='verifica.html';app.appendChild(a);
-  }
-  trades();
-}
-render();
-</script>
+<script src="swappr-config.js"></script>
+<script src="swappr.js?v=10"></script>
+<script src="js/scambi.js?v=10"></script>
 </body>
 </html>

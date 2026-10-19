@@ -1,0 +1,43 @@
+SWAPPR - EMAIL DI SUPABASE IN ITALIANO (facoltativo, ma consigliato)
+=====================================================================
+
+Supabase manda le email di conferma e di recupero password in inglese.
+Per metterle in italiano:
+
+  1. Supabase > il tuo progetto > Authentication > Emails > Templates.
+  2. Apri il modello "Confirm sign up": cambia "Subject" e sostituisci TUTTO il testo del corpo
+     (scheda "Source") con quello qui sotto. Premi "Save".
+  3. Fai lo stesso con il modello "Reset password".
+  4. Gli altri modelli (Magic link, Invite user, Change email address, Reauthentication) Swappr
+     non li usa: puoi lasciarli come sono.
+
+Non cambiare le parti tra doppie graffe: {{ .ConfirmationURL }} e' il link vero, generato da Supabase.
+(I nomi dei menu di Supabase possono cambiare un po' nel tempo: cerca "Email Templates".)
+
+
+---------------------------------------------------------------------
+MODELLO 1 - Confirm sign up
+---------------------------------------------------------------------
+Subject:
+Conferma il tuo account Swappr
+
+Body:
+<h2>Benvenuto su Swappr</h2>
+<p>Per attivare il tuo account conferma il tuo indirizzo email:</p>
+<p><a href="{{ .ConfirmationURL }}">Conferma la mia email</a></p>
+<p>Se il pulsante non funziona, copia questo indirizzo nella barra del browser:<br>{{ .ConfirmationURL }}</p>
+<p>Se non hai creato tu un account su Swappr, ignora questa email: non succede niente.</p>
+
+
+---------------------------------------------------------------------
+MODELLO 2 - Reset password
+---------------------------------------------------------------------
+Subject:
+Scegli una nuova password per Swappr
+
+Body:
+<h2>Nuova password</h2>
+<p>Hai chiesto di cambiare la password del tuo account Swappr. Premi qui per sceglierne una nuova:</p>
+<p><a href="{{ .ConfirmationURL }}">Scegli una nuova password</a></p>
+<p>Se il pulsante non funziona, copia questo indirizzo nella barra del browser:<br>{{ .ConfirmationURL }}</p>
+<p>Se non l'hai chiesto tu, ignora questa email: la tua password resta quella di prima.</p>

@@ -1,82 +1,266 @@
-SWAPPR - SITO COMPLETO (stile piu' pulito e caricamenti piu' veloci)
-====================================================================
+SWAPPR - SITO COMPLETO (versione 10: account veri con Supabase, tutti i set Pokemon)
+====================================================================================
 
 Questo archivio contiene TUTTI i file del sito.
 I loghi (logo.png, logo2.png, logo2-dark.png) NON sono inclusi: sono tuoi, lasciali dove sono.
 
+Il progetto Supabase "Swappr" (il database degli account) e' gia' stato creato e collegato al sito.
+Restano alcuni passi che richiedono il TUO account e che nessun altro puo' fare al posto tuo.
 
-COME PUBBLICARLO
+
+COSA RESTA DA FARE A TE (in ordine)
+  1. Pubblica i file                                          circa 5 minuti   -> COME PUBBLICARE
+  2. Finisci di installare il database (OBBLIGATORIO)         circa 2 minuti   -> DATABASE
+  3. Imposta gli indirizzi di accesso in Supabase             circa 2 minuti   -> ACCESSO E EMAIL
+  4. Collega un servizio che spedisce le email                circa 1 ora      -> ACCESSO E EMAIL
+  5. Diventa staff e scrivi l'indirizzo di Swappr             circa 5 minuti   -> STAFF
+  6. Apri controllo.html: deve essere tutto verde             1 minuto
+  7. Prova tutto con due account di prova                     circa 30 minuti  -> PROVA FINALE
+  8. Compila i dati legali e falli controllare                                 -> PRIMA DEL LANCIO PUBBLICO
+  9. Prima di aprire a tutti: piano Pro di Supabase e copie di sicurezza       -> PRIMA DEL LANCIO PUBBLICO
+
+Il passo 2 serve subito: senza, scambi, binder, wishlist e "segui" non funzionano sugli account veri.
+I passi 3 e 4 non servono per VEDERE il sito, ma senza di loro nessuno (a parte te) riesce a
+registrarsi: il link dell'email non riporta sul sito (passo 3) e l'email di conferma non arriva
+(passo 4).
+
+
+COME PUBBLICARE
 1. Estrai lo zip (tasto destro > Estrai tutto).
 2. Apri la cartella Desktop\swappr-landing.
    - Se ci sono ancora pagine di versioni molto vecchie (catalogo, calcolatore, dashboard, mercato...),
      cancellale. NON cancellare mai: la cartella nascosta .git, logo.png, logo2.png, logo2-dark.png.
-   - Se hai gia' pubblicato la versione precedente di questa app, non serve cancellare niente.
+   - Se trovi il file swappr-cloud.js (di una versione precedente) puoi cancellarlo: non serve piu'.
 3. Seleziona tutto il contenuto della cartella estratta (Ctrl+A, Ctrl+C) e incollalo in swappr-landing (Ctrl+V).
-   Ci sono anche la cartella "api" e il file vercel.json: devono finire nella cartella principale.
-   Se Windows chiede cosa fare con i file uguali, scegli "Sostituisci i file nella destinazione".
+   Ci sono anche le cartelle "api", "catalogo", "js", "supabase", "strumenti" e il file vercel.json:
+   devono finire nella cartella principale. Se Windows chiede cosa fare con i file uguali, scegli
+   "Sostituisci i file nella destinazione".
 4. Nel terminale, dentro swappr-landing:
       git add -A
-      git commit -m "Swappr: nuovo stile e caricamenti piu' veloci"
+      git commit -m "Swappr: account veri con Supabase e tutti i set"
       git push
 5. Vercel pubblica da solo in uno o due minuti.
 6. Se vedi ancora la versione vecchia, ricarica la pagina con Ctrl+F5.
 
+Il file swappr-config.js contiene solo l'indirizzo del progetto e la chiave PUBBLICA di Supabase
+(quella che inizia con sb_publishable_): e' fatta per stare nel sito, va bene che sia nel repository.
+
+
+DATABASE (Supabase)
+Progetto:   Swappr, regione Unione europea (Francoforte), piano gratuito
+Indirizzo:  https://fqymxshbcorrerigivnl.supabase.co  (gia' scritto in swappr-config.js)
+Pannello:   https://supabase.com/dashboard  (apri il progetto "Swappr")
+
+Il database l'ho installato io per quasi tutto: 17 tabelle, tutte protette (nessuno puo' leggerle o
+scriverle direttamente dal browser) e le funzioni con i controlli. Mancano solo 8 funzioni, quelle che
+CANCELLANO righe (notifiche, indirizzo, binder, wishlist, "segui", blocchi, eliminazione dell'account):
+Supabase mi ha chiesto una tua conferma e io non l'ho forzata. Le installi tu in un minuto:
+
+  1. Supabase > SQL Editor (menu a sinistra) > New query.
+  2. Apri il file supabase/schema.sql con il Blocco note, premi Ctrl+A e Ctrl+C.
+  3. Incolla nell'editor di Supabase (Ctrl+V) e premi "Run".
+  4. Supabase puo' mostrare un avviso su "operazioni distruttive": e' normale, il file contiene
+     istruzioni che cancellano righe (per esempio quando un utente cancella un binder). Conferma.
+  5. Deve comparire "Success. No rows returned".
+  6. Controllo: New query, scrivi   select public.app_status();   premi Run. Nel risultato deve esserci
+     "ok": true e   "missing": []   (elenco vuoto).
+Si puo' rifare quante volte vuoi: aggiorna le funzioni e NON cancella nessun dato.
+Ogni volta che ti mando una versione nuova di schema.sql, rifai questi passi.
+
+Il file e' lo stesso che ho provato su un PostgreSQL vero, con 184 controlli sulla sicurezza e sul
+comportamento (chi puo' vedere cosa, scambi, limiti anti-spam, cancellazione account).
+
+Avvisi nel pannello "Advisors" (Security): vedrai INFO "RLS Enabled No Policy" (17 tabelle) e WARN
+"SECURITY DEFINER function executable" (una quarantina di funzioni). Sono VOLUTI: le tabelle non hanno
+regole aperte perche' dal sito non si deve poter toccare nulla direttamente; tutto passa dalle funzioni,
+che controllano chi sei e cosa puoi fare. NON "correggerli" aggiungendo policy o permessi.
+
+
+ACCESSO E EMAIL (Supabase > Authentication)
+1. URL Configuration (Authentication > URL Configuration):
+   - Site URL:       https://swappr.org
+   - Redirect URLs:  https://swappr.org/profilo.html
+                     (se usi anche www:  https://www.swappr.org/profilo.html)
+   Servono perche' il link nell'email di conferma e in quella per la password dimenticata riporta
+   la persona sul tuo sito. NON aggiungere indirizzi con asterisco a caso (per esempio
+   https://*.vercel.app): chiunque potrebbe usarli per farsi consegnare gli accessi degli utenti.
+2. Sign In / Providers (Authentication > Sign In / Providers, oppure "Providers"):
+   - Email deve essere attivo e "Confirm email" acceso (di solito lo e' gia').
+   - Lascia acceso "Allow new users to sign up".
+3. Email vere (Authentication > Emails > SMTP Settings): QUESTO E' IL PASSO CHE BLOCCA TUTTO.
+   Finche' non colleghi un servizio di invio email, Supabase manda le email SOLO agli indirizzi dei
+   membri del tuo team Supabase (cioe' te). Gli altri utenti non ricevono la conferma e non entrano.
+   - Scegli un servizio di invio email (per esempio Resend, Brevo, Postmark, SendGrid, Amazon SES;
+     controlla prezzi e limiti, cambiano).
+   - Registrati, "verifica il dominio" swappr.org aggiungendo i record DNS che ti indicano
+     (li inserisci dove hai comprato il dominio), poi crea un mittente, per esempio noreply@swappr.org.
+   - Copia i dati SMTP (Host, Port, Username, Password) nel modulo di Supabase e salva.
+   - Subito dopo il salvataggio il limite e' di 30 email all'ora: alzalo in Authentication > Rate Limits
+     prima del lancio.
+   - Scrivi il nome del servizio in privacy.html (dove c'e' [DA COMPILARE: servizio per l'invio delle email]).
+4. Email in italiano (facoltativo ma consigliato): vedi supabase/email-italiano.txt.
+5. NON attivare il CAPTCHA di Supabase (Authentication > Attack Protection): il sito non lo gestisce
+   ancora e le registrazioni smetterebbero di funzionare. I limiti anti-spam sono gia' nel database.
+
+Per fare prove senza email: Authentication > Users > Add user > Create new user, scrivi email e
+password e spunta "Auto Confirm User". L'account nasce gia' confermato.
+
+
+STAFF (admin.html)
+Solo chi e' nell'elenco "staff" entra in https://swappr.org/admin.html. L'elenco si modifica solo da
+Supabase, mai dal sito.
+1. Registrati sul sito (pagina Profilo) con la tua email e conferma l'indirizzo. Se non hai ancora
+   collegato il servizio email, usa la stessa email del tuo account Supabase: e' l'unica a cui
+   Supabase puo' scrivere (oppure crea l'account dal pannello, vedi "Create new user" sopra).
+2. Supabase > SQL Editor > New query, incolla questa riga, scrivi la TUA email al posto di LA-TUA-EMAIL
+   (lascia gli apici) e premi Run:
+      insert into public.staff (user_id) select id from auth.users where email = 'LA-TUA-EMAIL';
+3. Apri admin.html > Impostazioni > "Indirizzo di spedizione di Swappr": scrivi l'indirizzo dove gli
+   utenti devono spedire le carte (e, se vuoi, le istruzioni per chi spedisce). Finche' non lo scrivi
+   gli utenti non sanno dove spedire; admin.html te lo ricorda con un avviso.
+4. In admin.html trovi: Panoramica, Scambi, Segnalazioni, Utenti (sospendi un account), Impostazioni, Registro.
+
+Come funziona uno scambio:
+  - Un utente propone, l'altro accetta.
+  - Ognuno spedisce le sue carte a Swappr e preme "Ho spedito" nel sito.
+  - Quando le carte di entrambi sono in arrivo, in admin.html > Scambi premi "Carte arrivate: inizia la
+    verifica", controlli le carte e poi "Verifica superata: carte inoltrate" quando le hai rispedite.
+  - Ognuno preme "Ricevuto" nel sito: quando lo hanno fatto entrambi lo scambio e' "Completato".
+  - Se qualcosa non va puoi annullare lo scambio: le due parti ricevono un avviso.
+  Ogni azione dello staff finisce nel Registro.
+
+
+CONTROLLO (controllo.html)
+https://swappr.org/controllo.html e' la pagina di diagnosi: dice in verde o in rosso se la configurazione,
+il collegamento a Supabase, lo schema del database e il catalogo carte sono a posto. Se qualcosa e' rosso
+spiega cosa fare e ha un rapporto da copiare. Non e' indicizzata dai motori di ricerca.
+
+
+PROVA FINALE (30 minuti, con due account di prova)
+  1. controllo.html: tutto verde.
+  2. Registrati con una email vera: deve arrivare la conferma; il link ti riporta su Profilo gia' dentro.
+  3. Aggiungi carte a un binder e alla wishlist, poi apri il sito da un altro browser o dal telefono,
+     entra con lo stesso account: devi ritrovare tutto.
+  4. Secondo account (vedi sopra, "Create new user"): cercalo dal primo, proponi uno scambio, accettalo,
+     premi "Ho spedito" da tutti e due, poi esegui i passi dello staff e "Ricevuto".
+  5. Scrivetevi un messaggio e controllate le notifiche.
+  6. Dal Profilo prova "Scarica i miei dati" e poi "Elimina il mio account" (solo con un account di prova!).
+  7. Prova il sito dal telefono, in inglese (Impostazioni) e con il tema scuro.
+
+
+PRIMA DEL LANCIO PUBBLICO
+Testi legali. In privacy.html e termini.html restano da compilare i testi tra parentesi quadre:
+  [NOME E COGNOME O RAGIONE SOCIALE], [INDIRIZZO COMPLETO], [PARTITA IVA / CODICE FISCALE], [TITOLARE],
+  [CITTA'] (foro competente), [DA COMPILARE: servizio per l'invio delle email],
+  [DA DEFINIRE: ...] (costi e commissioni, custodia e assicurazione delle carte, per quanto tempo
+  conservare gli scambi chiusi e il registro dello staff), [DA VERIFICARE ...] (diritto di recesso).
+  In VS Code: Ctrl+Maiusc+F e cerca [DA ; poi cerca anche [NOME, [INDIRIZZO, [PARTITA, [TITOLARE, [CITT.
+  Questi testi sono una BOZZA scritta per te, non un parere legale: Swappr custodisce carte di altre
+  persone, quindi falli controllare da un avvocato (consumatori, dati personali, fisco). Quando sono
+  pronti cancella l'avviso "Bozza da completare" in termini.html.
+  Il sito usa info@swappr.org come contatto (nei Termini, nella privacy e in verifica.html): crea la
+  casella e controllala.
+Piano e copie di sicurezza. Il piano gratuito va bene per provare ma Supabase puo' mettere in pausa i
+  progetti con poca attivita' per 7 giorni (si riattiva dal pannello con "Restore project", i dati restano)
+  e non include le copie di sicurezza giornaliere. Per aprire a tutti passa al piano Pro (controlla
+  prezzi e dettagli sul sito di Supabase).
+Account. Attiva l'autenticazione a due fattori su Supabase, Vercel e GitHub e, se puoi, aggiungi un
+  secondo proprietario all'organizzazione Supabase (Organization > Team): chi entra li' controlla tutto.
+
+
+SICUREZZA - COSE DA NON FARE
+- Non incollare MAI in un file del sito la chiave "service_role" o una chiave che inizia con
+  sb_secret_: darebbe a chiunque visiti il sito il controllo totale del database. Il sito si rifiuta di
+  usarle, ma non devono comunque finire nel repository. In swappr-config.js va solo la chiave pubblica.
+- Se scrivi nuove funzioni SQL, subito dopo averle create esegui
+      revoke all on function public.nome_funzione(tipi) from public, anon, authenticated;
+  e poi dai il permesso solo a chi serve (grant execute ... to authenticated). Senza questa riga
+  chiunque potrebbe chiamarle con la chiave pubblica.
+- Se un giorno usi un indirizzo personalizzato per Supabase (invece di fqymxshbcorrerigivnl.supabase.co),
+  aggiungilo in vercel.json alla riga Content-Security-Policy, nella parte connect-src. Non toccare
+  il codice "sha256-..." (e' lo script del tema scuro).
+- Il file .vercelignore chiede a Vercel di non pubblicare LEGGIMI.txt e le cartelle supabase e strumenti.
+  Non contengono segreti, quindi non sarebbe un problema se qualcuno le vedesse.
+
+
+PULIZIA DEI DATI VECCHI (facoltativa)
+supabase/manutenzione.sql crea una funzione che toglie i dati che non devi tenere oltre i tempi scritti
+nella privacy (scambi chiusi di utenti che hanno eliminato l'account, segnalazioni chiuse, registro dello
+staff, notifiche lette vecchie). Va eseguita DOPO schema.sql: incolla il file in SQL Editor e premi Run.
+  select public.maintenance_run();         prova a secco: conta soltanto, non cancella niente
+  select public.maintenance_run(false);    cancella davvero
+Per farla partire da sola ogni settimana: Supabase > Integrations > Cron. I periodi (24 mesi, 90 giorni)
+devono essere gli stessi che scrivi nella privacy.
+
+
+CATALOGO CARTE E FILTRI (tutti i set)
+- La cartella catalogo/ contiene TUTTI i set Pokemon (176) e tutte le loro carte (20.635), aggiornati
+  al 16 settembre 2026 (ultimo set: 30th Celebration). I filtri per set, rarita' e tipo e la ricerca
+  leggono questi file: non dipendono piu' da un servizio esterno.
+- ATTENZIONE: la Pokemon TCG API (api.pokemontcg.io) chiude il 1 marzo 2027. Il sito continua a
+  funzionare grazie al catalogo, ma i set usciti dopo il 16 settembre 2026 compariranno solo quando
+  ricostruisci il catalogo. Dopo quella data il sito non puo' piu' chiedere le carte nuove alla API.
+- Come ricostruire il catalogo (serve Node.js 18 o piu' recente):
+      git clone https://github.com/PokemonTCG/pokemon-tcg-data ..\pokemon-tcg-data
+      node strumenti\costruisci-catalogo.js ..\pokemon-tcg-data catalogo
+  (metti la cartella pokemon-tcg-data FUORI da swappr-landing). Il programma controlla che ogni carta
+  abbia lo stesso id e le stesse immagini della fonte e si ferma con un errore se qualcosa non torna.
+  Poi cambia il numero di versione (vedi sotto) e pubblica. Se dopo marzo 2027 quella fonte non sara'
+  piu' aggiornata servira' un'altra fonte dati: dimmelo e adatto lo strumento.
+- Le immagini delle carte arrivano da images.pokemontcg.io e images.scrydex.com.
+
 
 STRUTTURA
-- index.html         Cerca (home): ultime uscite, piu' ricercate, tutte le carte, ricerca e filtri
+- index.html         Cerca (home): ultime uscite, piu' ricercate, tutte le carte, ricerca e filtri per set
 - binder.html        I tuoi binder e quelli degli altri
 - wishlist.html      La tua wishlist e quelle degli altri
 - scambi.html        Match e scambi con verifica Swappr
 - messaggi.html      Notifiche e messaggi
-- profilo.html       Profilo, accesso e registrazione
+- profilo.html       Profilo, accesso, registrazione, indirizzo, i tuoi dati
 - impostazioni.html  Tema, lingua, informazioni, backup, cache
+- admin.html         Pannello dello staff (solo per chi e' nell'elenco staff)
+- controllo.html     Diagnosi: configurazione, Supabase, database, catalogo
 - beta.html          Pagina con la lista d'attesa (la vecchia home)
-- verifica.html, guida.html, privacy.html, 404.html
-- swappr.css         Stile di tutte le pagine
-- swappr.js          Funzioni comuni (carte, binder, wishlist, match, cache)
+- verifica.html, guida.html, privacy.html, termini.html, 404.html
+- swappr.css, beta.css   Stile delle pagine
+- swappr.js          Funzioni comuni (carte, binder, wishlist, match, cache, collegamento a Supabase)
+- js/                Il codice di ogni pagina
 - swappr-i18n.js     Traduzione in inglese (si carica solo se scegli English)
-- swappr-config.js   Collegamento ai tuoi account veri (Supabase), per ora vuoto
-- api/pokemon.js     Ponte facoltativo che rende piu' veloci le carte (vedi sotto)
-- vercel.json        Regole di cache per i file di stile e script
-- robots.txt, sitemap.xml
+- swappr-config.js   Indirizzo e chiave PUBBLICA del tuo Supabase (gia' compilato)
+- catalogo/          sets.json e carte.json: tutti i set e le carte
+- supabase/          schema.sql (database), manutenzione.sql (facoltativo), email-italiano.txt (facoltativo)
+- strumenti/         costruisci-catalogo.js (per rigenerare il catalogo)
+- api/pokemon.js     Ponte facoltativo per la Pokemon TCG API (vedi sotto)
+- vercel.json        Regole di sicurezza e di cache
+- .vercelignore, robots.txt, sitemap.xml
 
 
-STILE
+STILE E VELOCITA'
 Sfondo bianco, un solo colore (blu), carattere di sistema (nessun font da scaricare), niente emoji.
-Il tema scuro si sceglie da Impostazioni. Gli altri utenti che vedi (Athos, Luca, Lucia...) sono
-di esempio e sono indicati come tali finche' non colleghi gli account veri.
-
-
-VELOCITA' - COSA CAMBIA
-- Le carte gia' viste restano salvate nel browser: alla visita dopo la pagina parte subito, senza richieste.
-- Alla prima visita "Le piu' ricercate" compaiono subito, con carte di base gia' incluse nel sito.
-- Le richieste uguali vengono unite; se la Pokemon TCG API e' lenta o dice "troppe richieste" il sito
-  aspetta e riprova. Se non risponde, mostra un messaggio con il pulsante "Riprova".
+Il tema scuro si sceglie da Impostazioni.
+- Le carte gia' viste restano salvate nel browser: alla visita dopo la pagina parte subito.
 - Le immagini fuori dalla prima schermata si caricano solo quando servono e la pagina non "salta".
-- Il ponte api/pokemon.js (facoltativo): su Vercel conserva le risposte della API e le serve a tutti i
-  visitatori molto piu' in fretta. Se il file manca o non risponde, il sito chiama la API direttamente
-  e funziona lo stesso.
-- Facoltativo: con una chiave gratuita di pokemontcg.io la API e' meno lenta. Mettila su Vercel
-  (Project Settings > Environment Variables) con il nome POKEMONTCG_API_KEY. Mai dentro i file del sito.
+- Il catalogo si scarica solo quando serve (circa 120 KB compressi, il file piu' grande) e poi resta in
+  cache nel browser.
+- Facoltativo, api/pokemon.js: su Vercel conserva le risposte della Pokemon TCG API (servono solo per i
+  set piu' nuovi del catalogo). Se il file manca o non risponde il sito funziona lo stesso. Con una
+  chiave gratuita di pokemontcg.io la API e' meno lenta: mettila su Vercel (Project Settings >
+  Environment Variables) con il nome POKEMONTCG_API_KEY. Mai dentro i file del sito.
 - In Impostazioni c'e' il pulsante "Svuota cache carte": serve se qualcosa sembra vecchio.
 
 
-QUANDO MODIFICHI swappr.css, swappr.js O swappr-i18n.js
-I browser tengono questi tre file per un giorno. Per far scaricare subito la versione nuova cambia il
-numero di versione (ora 8, scrivi 9 poi 10...) in DUE posti, sempre uguale:
-  1. all'inizio di swappr.js, nella riga   var V='8';
-  2. in tutte le pagine .html, dove c'e'   ?v=8   (in VS Code: Ctrl+Maiusc+H, cerca ?v=8, sostituisci ?v=9)
-
-
-ACCOUNT VERI
-Apri swappr-config.js e inserisci "Project URL" e "anon public key" del tuo progetto Supabase
-(Project Settings > API). Mai la chiave service_role.
-Finche' non lo fai, wishlist, binder, scambi e messaggi restano salvati solo nel browser di chi li crea.
+QUANDO MODIFICHI swappr.css, swappr.js, swappr-i18n.js, js/ O catalogo/
+I browser tengono questi file per un giorno. Per far scaricare subito la versione nuova cambia il
+numero di versione (ora 10, scrivi 11 poi 12...) in DUE posti, sempre uguale:
+  1. all'inizio di swappr.js, nella riga   var V='10';
+  2. in tutte le pagine .html, dove c'e'   ?v=10   (in VS Code: Ctrl+Maiusc+H, cerca ?v=10, sostituisci ?v=11)
+I due numeri devono essere sempre uguali.
 
 
 LINGUA INGLESE
 Per aggiungere o correggere una frase: apri swappr-i18n.js e inserisci   "testo italiano":"English text"
 nell'elenco D. Per frasi con nomi o numeri dentro (es. "Binder di Athos") serve un modello nell'elenco P.
+admin.html e controllo.html restano solo in italiano.
 
 
 LOGO E TEMA
@@ -85,6 +269,14 @@ LOGO E TEMA
 - La pagina beta.html (iscrizione) e l'icona della scheda usano logo.png.
 
 
-PRIMA DEL LANCIO
-- In privacy.html sostituisci [NOME E COGNOME O RAGIONE SOCIALE] e [INDIRIZZO COMPLETO] con i tuoi dati.
-- Servono Termini e Condizioni del servizio di verifica e intermediazione (da far redigere a un professionista).
+SE QUALCOSA NON VA
+- Vedo ancora la versione vecchia: Ctrl+F5; se non basta cambia il numero di versione (sopra).
+- controllo.html dice "schema incompleto" o "mancano funzioni": rifai il passo DATABASE (schema.sql > Run).
+- Non arriva l'email di conferma: hai collegato il servizio email (SMTP)? Controlla lo spam e il limite
+  di email all'ora (Authentication > Rate Limits). Senza SMTP arrivano solo agli indirizzi del tuo team.
+- Il sito dice che il servizio non e' raggiungibile: il progetto Supabase gratuito potrebbe essere in
+  pausa. Apri il pannello e premi "Restore project".
+- Hai incollato la chiave sbagliata in swappr-config.js: serve quella "publishable" (sb_publishable_...),
+  la trovi in Supabase > Project Settings > API Keys. Mai quella "secret".
+- Le funzioni di scambio danno errore e controllo.html e' tutto verde: copia il rapporto della pagina
+  controllo.html e mandamelo.

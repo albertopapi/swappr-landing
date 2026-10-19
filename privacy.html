@@ -4,10 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Informativa privacy - Swappr</title>
-<meta name="description" content="Informativa sul trattamento dei dati personali di Swappr.">
+<meta name="description" content="Come Swappr tratta i dati personali di chi visita il sito, si iscrive alla Beta o crea un account.">
+<link rel="canonical" href="https://swappr.org/privacy.html">
 <meta name="theme-color" content="#ffffff">
 <link rel="icon" href="logo.png">
-<link rel="stylesheet" href="swappr.css?v=8">
+<link rel="stylesheet" href="swappr.css?v=10">
 <script>try{var t=JSON.parse(localStorage.getItem('swappr-theme-v1'));document.documentElement.dataset.theme=(t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches))?'dark':'light';}catch(e){}</script>
 </head>
 <body>
@@ -15,49 +16,81 @@
   <h1>Informativa privacy</h1>
   <p class="updated">Ultimo aggiornamento: 19 ottobre 2026</p>
 
-  <p>Questa informativa spiega come Swappr tratta i dati personali di chi visita il sito swappr.org e si iscrive alla lista d'attesa, ai sensi del Regolamento (UE) 2016/679 (GDPR).</p>
+  <p>Questa informativa spiega come Swappr tratta i dati personali di chi visita il sito swappr.org, si iscrive alla lista d'attesa della Beta o crea un account, ai sensi del Regolamento (UE) 2016/679 (GDPR).</p>
 
   <h2>1. Titolare del trattamento</h2>
   <p>[NOME E COGNOME O RAGIONE SOCIALE], [INDIRIZZO COMPLETO], Italia.<br>
   Email di contatto: <a href="mailto:info@swappr.org">info@swappr.org</a></p>
 
-  <h2>2. Dati che raccogliamo</h2>
+  <h2>2. Quali dati trattiamo</h2>
   <ul>
-    <li><strong>Indirizzo email</strong>, che inserisci volontariamente nel modulo di iscrizione alla Beta.</li>
-    <li><strong>Binder, wishlist, scambi, messaggi e profilo locale</strong>: restano salvati solo nel tuo browser (localStorage) e non li riceviamo sui nostri server.</li>
-    <li><strong>Account (se lo crei)</strong>: email, nome utente, città e descrizione facoltative, colore dell'avatar, più la password, che viene conservata in forma cifrata (hash) e non è leggibile da noi.</li>
+    <li><strong>Visita al sito</strong>: dati tecnici di navigazione (indirizzo IP, tipo di browser, data e ora), registrati dal fornitore di hosting per far funzionare e proteggere il servizio.</li>
+    <li><strong>Iscrizione alla Beta</strong>: l'indirizzo email che inserisci volontariamente nel modulo.</li>
+    <li><strong>Account</strong>: email, password (conservata solo in forma cifrata, non leggibile da noi), nome utente, città, descrizione e colore dell'avatar (facoltativi), data di accettazione dei Termini.</li>
+    <li><strong>Binder e wishlist</strong>: le carte che hai e che cerchi, con condizioni e quantità, e le persone che segui o blocchi.</li>
+    <li><strong>Indirizzo di spedizione</strong>: nome e cognome, indirizzo, CAP, città, provincia, paese e telefono (facoltativo). Lo vede solo Swappr e non viene mai mostrato agli altri utenti.</li>
+    <li><strong>Scambi</strong>: carte proposte, condizioni, stati, date, note, numeri di tracking e conferme di spedizione e ricezione.</li>
+    <li><strong>Messaggi e segnalazioni</strong>: i messaggi che scrivi agli altri utenti e le segnalazioni che invii o ricevi.</li>
+    <li><strong>Nel tuo browser</strong> (localStorage): lingua, tema, sessione di accesso, una copia dei tuoi dati per far funzionare il sito anche offline e una copia temporanea delle carte già viste.</li>
   </ul>
 
-  <h2>3. Finalità e base giuridica</h2>
+  <h2>3. Perché li trattiamo e su quale base</h2>
   <ul>
-    <li>Inviarti l'invito per accedere alla Beta e comunicazioni sul lancio di Swappr. Base giuridica: il tuo consenso (art. 6, par. 1, lett. a GDPR).</li>
-    <li>Gestire eventuali richieste che ci invii via email. Base giuridica: il nostro legittimo interesse a risponderti (art. 6, par. 1, lett. f GDPR).</li>
+    <li>Creare e gestire il tuo account, trovare gli scambi, custodire, verificare e inoltrare le carte, spedirti i pacchi e inviarti le comunicazioni di servizio (conferma dell'email, avvisi sugli scambi). Base giuridica: esecuzione del contratto (art. 6, par. 1, lett. b GDPR).</li>
+    <li>Garantire la sicurezza del servizio, prevenire frodi e abusi, gestire segnalazioni e sospensioni. Base giuridica: legittimo interesse (art. 6, par. 1, lett. f).</li>
+    <li>Adempiere agli obblighi di legge, per esempio fiscali e contabili. Base giuridica: obbligo di legge (art. 6, par. 1, lett. c).</li>
+    <li>Inviarti l'invito per accedere alla Beta e comunicazioni sul lancio. Base giuridica: il tuo consenso (art. 6, par. 1, lett. a), che puoi revocare quando vuoi.</li>
+    <li>Rispondere alle richieste che ci invii. Base giuridica: legittimo interesse (art. 6, par. 1, lett. f).</li>
   </ul>
 
-  <h2>4. Come trattiamo i dati e chi li riceve</h2>
-  <p>L'email viene raccolta tramite il servizio <strong>Formspree</strong>, che agisce come fornitore (responsabile del trattamento) e può trattare i dati su server situati fuori dallo Spazio economico europeo, in particolare negli Stati Uniti. In tal caso il trasferimento avviene con le garanzie previste dal GDPR. Il sito è ospitato su <strong>Vercel</strong>, che può registrare dati tecnici di navigazione (come l'indirizzo IP) per far funzionare e proteggere il servizio. Se crei un account, l'autenticazione è gestita da <strong>Supabase</strong>, che può trattare i dati su server situati anche fuori dallo Spazio economico europeo, a seconda della regione scelta. Le carte e le immagini vengono richieste alla <strong>Pokémon TCG API</strong>: dal tuo browser oppure, quando disponibile, tramite una funzione di Swappr su Vercel che conserva per qualche tempo le risposte per rendere il sito più veloce. I link a <strong>Cardmarket</strong> portano a un sito esterno con la sua informativa. Non vendiamo i tuoi dati a terzi.</p>
-
-  <h2>5. Per quanto tempo conserviamo i dati</h2>
-  <p>Conserviamo la tua email fino al lancio della Beta e per un periodo ragionevole successivo, oppure fino a quando revochi il consenso, a seconda di quale evento si verifica prima. Poi la cancelliamo.</p>
-
-  <h2>6. I tuoi diritti</h2>
-  <p>Puoi in qualsiasi momento chiedere di:</p>
+  <h2>4. Chi può vedere i tuoi dati</h2>
   <ul>
-    <li>accedere ai tuoi dati e ottenerne una copia;</li>
-    <li>rettificarli o cancellarli;</li>
-    <li>limitare o opporti al trattamento;</li>
-    <li>ricevere i dati in formato strutturato (portabilità);</li>
-    <li>revocare il consenso, senza effetto sul trattamento già effettuato.</li>
+    <li><strong>Gli altri utenti registrati</strong> vedono il tuo nome utente e, se il profilo è visibile, la tua città, la descrizione, i binder e la wishlist. Non vedono mai la tua email né il tuo indirizzo. Nello scambio vedono il tuo nome utente, le carte e le note che scrivi.</li>
+    <li><strong>Lo staff di Swappr</strong> vede i dati necessari a gestire scambi, spedizioni e segnalazioni (email, indirizzo, tracking). Ogni azione dello staff viene registrata.</li>
   </ul>
-  <p>Per esercitarli scrivi a <a href="mailto:info@swappr.org">info@swappr.org</a>. Hai inoltre il diritto di presentare un reclamo al Garante per la protezione dei dati personali (<a href="https://www.garanteprivacy.it" rel="noopener">www.garanteprivacy.it</a>).</p>
 
-  <h2>7. Cookie</h2>
-  <p>Al momento il sito non usa cookie di profilazione né strumenti di analisi. Usa lo storage del browser (localStorage) solo per funzioni tecniche, come la lingua, il tema, la sessione di accesso, i dati del binder e una copia temporanea delle carte già viste, che rende il sito più veloce e puoi cancellare da Impostazioni. Se in futuro li introdurremo, aggiorneremo questa pagina e chiederemo il tuo consenso dove necessario.</p>
+  <h2>5. Fornitori e trasferimenti</h2>
+  <p>Per offrire il servizio ci affidiamo a fornitori che trattano dati per nostro conto:</p>
+  <ul>
+    <li><strong>Supabase</strong>: database e autenticazione (account, binder, scambi, messaggi). Regione dei server: Unione europea (Francoforte, Germania). Il fornitore ha sede negli Stati Uniti: per eventuali trasferimenti fuori dallo Spazio economico europeo si applicano le garanzie previste dal GDPR.</li>
+    <li><strong>Vercel</strong>: hosting del sito. Registra dati tecnici di navigazione come l'indirizzo IP.</li>
+    <li><strong>Formspree</strong>: raccolta dell'email nel modulo di iscrizione alla Beta, con possibile trattamento anche negli Stati Uniti.</li>
+    <li><strong>[DA COMPILARE: servizio per l'invio delle email]</strong>: recapita le email di conferma e di servizio.</li>
+    <li><strong>Corrieri e servizi postali</strong>: ricevono nome, indirizzo e, se serve alla consegna, telefono, quando Swappr ti spedisce le carte.</li>
+    <li><strong>Pokémon TCG API, images.pokemontcg.io e images.scrydex.com</strong>: forniscono informazioni e immagini delle carte. Le immagini sono caricate direttamente dal tuo browser, quindi quei server vedono il tuo indirizzo IP e il tipo di browser.</li>
+    <li><strong>Cardmarket</strong>: i link portano a un sito esterno con la sua informativa.</li>
+  </ul>
+  <p>Non vendiamo i tuoi dati a terzi.</p>
 
-  <h2>8. Modifiche</h2>
-  <p>Potremo aggiornare questa informativa, per esempio quando verranno lanciati la registrazione e il salvataggio dei binder online. La data in alto indica sempre l'ultima versione.</p>
+  <h2>6. Per quanto tempo li conserviamo</h2>
+  <ul>
+    <li>Account, binder, wishlist, indirizzo, notifiche e messaggi: finché l'account è attivo. Quando lo elimini vengono cancellati.</li>
+    <li>Scambi: dopo l'eliminazione dell'account conserviamo la scheda dello scambio (nome utente, carte, date e tracking) per [DA DEFINIRE: periodo, per esempio 24 mesi], per gestire eventuali contestazioni e per obblighi di legge. Poi i dati personali vengono rimossi.</li>
+    <li>Email della lista d'attesa: fino al lancio della Beta e per un periodo ragionevole successivo, oppure finché revochi il consenso, a seconda di quale evento si verifica prima.</li>
+    <li>Registro delle azioni dello staff e segnalazioni chiuse: [DA DEFINIRE: periodo, per esempio 24 mesi].</li>
+  </ul>
+
+  <h2>7. I tuoi diritti</h2>
+  <p>Puoi in qualsiasi momento:</p>
+  <ul>
+    <li>accedere ai tuoi dati e scaricarne una copia in formato strutturato: dalle Impostazioni, con «Scarica i miei dati»;</li>
+    <li>correggere i dati del profilo e dell'indirizzo dal tuo profilo;</li>
+    <li>cancellare il tuo account dal profilo (non è possibile finché hai scambi in corso);</li>
+    <li>chiedere di limitare il trattamento o opporti, e revocare il consenso, senza effetto sul trattamento già effettuato.</li>
+  </ul>
+  <p>Per le richieste che non puoi fare da solo scrivi a <a href="mailto:info@swappr.org">info@swappr.org</a>. Hai inoltre il diritto di presentare un reclamo al Garante per la protezione dei dati personali (<a href="https://www.garanteprivacy.it" rel="noopener noreferrer">www.garanteprivacy.it</a>).</p>
+
+  <h2>8. Cookie e strumenti simili</h2>
+  <p>Il sito non usa cookie di profilazione né strumenti di analisi. Usa lo storage del browser (localStorage) solo per funzioni tecniche necessarie, come la lingua, il tema, la sessione di accesso e i tuoi dati. Per questo il sito non mostra un banner cookie. Se in futuro introdurremo altri strumenti aggiorneremo questa pagina e chiederemo il tuo consenso dove necessario.</p>
+
+  <h2>9. Sicurezza</h2>
+  <p>I dati sono protetti con connessioni cifrate (HTTPS), password conservate in forma cifrata, accesso ai dati limitato alle funzioni del servizio e controlli di sicurezza sul database. Nessun sistema è sicuro al cento per cento: se ti accorgi di un problema scrivici.</p>
+
+  <h2>10. Modifiche</h2>
+  <p>Possiamo aggiornare questa informativa, per esempio quando cambiano le funzioni del sito. La data in alto indica sempre l'ultima versione; per le modifiche importanti ti avvisiamo nel sito o per email.</p>
 </main>
-<footer>© 2026 Swappr. Tutti i diritti riservati.</footer>
-<script src="swappr.js?v=8"></script>
+<footer class="sitefoot"><p>© 2026 Swappr. Tutti i diritti riservati. Swappr non è affiliato a The Pokémon Company, a Nintendo né a Cardmarket. Pokémon e i nomi delle carte sono marchi dei rispettivi proprietari.</p><nav aria-label="Informazioni"><a href="termini.html">Termini</a><a href="privacy.html">Privacy</a><a href="verifica.html">Come funziona la verifica</a><a href="guida.html">Guida alle condizioni</a></nav></footer>
+<script src="swappr-config.js"></script>
+<script src="swappr.js?v=10"></script>
 </body>
 </html>

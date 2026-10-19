@@ -1,0 +1,1 @@
+try{if(JSON.parse(localStorage.getItem('swappr-lang-v1'))==='en'){document.documentElement.lang='en';document.title='Page not found - Swappr';document.querySelector('h1').textContent='Page not found';document.querySelector('.nf p').textContent='This page does not exist or has been moved.';document.querySelector('.btn').textContent='Back to home';}}catch(e){}
